@@ -2,7 +2,7 @@ plugins {
     id 'org.quiltmc.loom' version '1.3.4'
     id 'maven-publish'
     id 'idea'
-    id 'net.darkhax.curseforgegradle' version '1.+'
+    id 'net.darkhax.curseforgegradle' version '1.0.+'
     id 'com.modrinth.minotaur' version '2.+'
 }
 
@@ -47,6 +47,7 @@ dependencies {
     modApi "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}"
     modApi "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}"
     modImplementation group: 'com.illusivesoulworks.spectrelib', name: 'spectrelib-quilt', version: "${spectrelib_range}"
+    modImplementation group: 'com.illusivesoulworks.spectrelib', name: 'spectrelib-common', version: "${spectrelib_range}"
 
     // Embedded
     // Embedded
@@ -137,7 +138,7 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
 }
 
 modrinth {
-    token = findProperty('modrinthKey') ?: 0
+    token = findProperty('modrinthKey') ?: ''
     projectId = "${modrinth_id}"
     versionName = getArchivesBaseName() + "-" + getVersion()
     versionType = "${release_type}"

@@ -2,7 +2,7 @@ plugins {
     id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'maven-publish'
     id 'idea'
-    id 'net.darkhax.curseforgegradle' version '1.+'
+    id 'net.darkhax.curseforgegradle' version '1.0.+'
     id 'com.modrinth.minotaur' version '2.+'
 }
 
@@ -111,7 +111,7 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
 }
 
 modrinth {
-    token = findProperty('modrinthKey') ?: 0
+    token = findProperty('modrinthKey') ?: ''
     projectId = "${modrinth_id}"
     versionName = getArchivesBaseName() + "-" + getVersion()
     versionType = "${release_type}"
