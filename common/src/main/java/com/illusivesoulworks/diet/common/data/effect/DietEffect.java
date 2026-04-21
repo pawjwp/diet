@@ -22,11 +22,20 @@ import com.illusivesoulworks.diet.api.type.IDietAttribute;
 import com.illusivesoulworks.diet.api.type.IDietCondition;
 import com.illusivesoulworks.diet.api.type.IDietEffect;
 import com.illusivesoulworks.diet.api.type.IDietStatusEffect;
+import com.illusivesoulworks.diet.platform.Services;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -65,6 +74,64 @@ public class DietEffect implements IDietEffect {
   @Override
   public UUID getUuid() {
     return this.uuid;
+  }
+
+  @Override
+  public CompoundTag save() {
+    CompoundTag tag = new CompoundTag();
+    tag.putUUID("UUID", this.uuid);
+    tag.putInt("Quality", this.quality);
+    ListTag attributesList = new ListTag();
+
+    for (IDietAttribute attribute : this.attributes) {
+      attributesList.add(attribute.save());
+    }
+    tag.put("Attributes", attributesList);
+    ListTag statusList = new ListTag();
+
+    for (IDietStatusEffect statusEffect : this.statusEffects) {
+      statusList.add(statusEffect.save());
+    }
+    tag.put("StatusEffects", statusList);
+    ListTag conditionsList = new ListTag();
+
+    for (IDietCondition condition : this.conditions) {
+      conditionsList.add(condition.save());
+    }
+    tag.put("Conditions", conditionsList);
+    return tag;
+  }
+
+  public static DietEffect load(CompoundTag tag) {
+    UUID uuid = tag.getUUID("UUID");
+    int quality = tag.getInt("Quality");
+    List<IDietAttribute> attributes = new ArrayList<>();
+    ListTag attributesList = tag.getList("Attributes", Tag.TAG_COMPOUND);
+
+    for (int i = 0; i < attributesList.size(); i++) {
+      DietAttribute attribute = DietAttribute.load(attributesList.getCompound(i));
+
+      if (attribute != null) {
+        attributes.add(attribute);
+      }
+    }
+    List<IDietStatusEffect> statusEffects = new ArrayList<>();
+    ListTag statusList = tag.getList("StatusEffects", Tag.TAG_COMPOUND);
+
+    for (int i = 0; i < statusList.size(); i++) {
+      DietStatusEffect statusEffect = DietStatusEffect.load(statusList.getCompound(i));
+
+      if (statusEffect != null) {
+        statusEffects.add(statusEffect);
+      }
+    }
+    List<IDietCondition> conditions = new ArrayList<>();
+    ListTag conditionsList = tag.getList("Conditions", Tag.TAG_COMPOUND);
+
+    for (int i = 0; i < conditionsList.size(); i++) {
+      conditions.add(DietCondition.load(conditionsList.getCompound(i)));
+    }
+    return new DietEffect(uuid, attributes, statusEffects, conditions, quality);
   }
 
   public static class DietAttribute implements IDietAttribute {
@@ -106,6 +173,28 @@ public class DietEffect implements IDietEffect {
     public double getIncrement() {
       return this.increment;
     }
+
+    @Override
+    public CompoundTag save() {
+      CompoundTag tag = new CompoundTag();
+      tag.putString("Name",
+          Objects.requireNonNull(Services.REGISTRY.getAttributeKey(this.attribute)).toString());
+      tag.putInt("Op", this.operation.toValue());
+      tag.putDouble("Amount", this.amount);
+      tag.putDouble("Increment", this.increment);
+      return tag;
+    }
+
+    public static DietAttribute load(CompoundTag tag) {
+      Attribute attribute = Services.REGISTRY
+          .getAttribute(new ResourceLocation(tag.getString("Name"))).orElse(null);
+
+      if (attribute == null) {
+        return null;
+      }
+      AttributeModifier.Operation op = AttributeModifier.Operation.fromValue(tag.getInt("Op"));
+      return new DietAttribute(attribute, op, tag.getDouble("Amount"), tag.getDouble("Increment"));
+    }
   }
 
   public static class DietStatusEffect implements IDietStatusEffect {
@@ -138,6 +227,26 @@ public class DietEffect implements IDietEffect {
     public int getIncrement() {
       return this.increment;
     }
+
+    @Override
+    public CompoundTag save() {
+      CompoundTag tag = new CompoundTag();
+      tag.putString("Name",
+          Objects.requireNonNull(Services.REGISTRY.getStatusEffectKey(this.effect)).toString());
+      tag.putInt("Power", this.power);
+      tag.putInt("Increment", this.increment);
+      return tag;
+    }
+
+    public static DietStatusEffect load(CompoundTag tag) {
+      MobEffect effect = Services.REGISTRY
+          .getStatusEffect(new ResourceLocation(tag.getString("Name"))).orElse(null);
+
+      if (effect == null) {
+        return null;
+      }
+      return new DietStatusEffect(effect, tag.getInt("Power"), tag.getInt("Increment"));
+    }
   }
 
   public static class DietCondition implements IDietCondition {
@@ -161,6 +270,47 @@ public class DietEffect implements IDietEffect {
 
     public int getMatches(Player player, Map<String, Float> values) {
       return this.match.getMatches(this.groups, values, (float) this.above, (float) this.below);
+    }
+
+    @Override
+    public Set<String> getGroups() {
+      return this.groups;
+    }
+
+    @Override
+    public double getAbove() {
+      return this.above;
+    }
+
+    @Override
+    public double getBelow() {
+      return this.below;
+    }
+
+    @Override
+    public CompoundTag save() {
+      CompoundTag tag = new CompoundTag();
+      ListTag groupList = new ListTag();
+
+      for (String group : this.groups) {
+        groupList.add(StringTag.valueOf(group));
+      }
+      tag.put("Groups", groupList);
+      tag.putString("Match", this.match.name());
+      tag.putDouble("Above", this.above);
+      tag.putDouble("Below", this.below);
+      return tag;
+    }
+
+    public static DietCondition load(CompoundTag tag) {
+      Set<String> groups = new HashSet<>();
+      ListTag groupList = tag.getList("Groups", Tag.TAG_STRING);
+
+      for (int i = 0; i < groupList.size(); i++) {
+        groups.add(groupList.getString(i));
+      }
+      MatchMethod match = MatchMethod.findOrDefault(tag.getString("Match"), MatchMethod.ANY);
+      return new DietCondition(groups, match, tag.getDouble("Above"), tag.getDouble("Below"));
     }
   }
 

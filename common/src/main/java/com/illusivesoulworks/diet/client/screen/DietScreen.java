@@ -142,7 +142,7 @@ public class DietScreen extends Screen {
             diet -> DietSuites.getSuite(this.minecraft.level, diet.getSuite()).ifPresent(suite -> {
               int y = this.height / 2 - this.ySize / 2 + 25;
               int x = this.width / 2 - this.xSize / 2 + 10;
-              Component tooltip = null;
+              List<Component> tooltip = null;
 
               for (IDietGroup group : suite.getGroups()) {
                 guiGraphics.renderItem(new ItemStack(group.getIcon()), x, y - 5);
@@ -173,23 +173,26 @@ public class DietScreen extends Screen {
                 guiGraphics.drawString(this.font, percentText, xPos, (yPos - 1), 0, false);
                 guiGraphics.drawString(this.font, percentText, xPos, yPos, color.getRGB(), false);
                 int lowerY = y - 5;
-                int upperX = x + 16;
+                int upperX = x + 220;
                 int upperY = lowerY + 16;
 
                 if (mouseX >= x && mouseX <= upperX && mouseY >= lowerY && mouseY <= upperY) {
+                  tooltip = Lists.newArrayList();
                   String key =
                       "groups." + DietConstants.MOD_ID + "." + group.getName() + ".tooltip";
 
                   if (Language.getInstance().has(key)) {
-                    tooltip = Component.translatable(key);
+                    tooltip.add(Component.translatable(key));
+                    tooltip.add(Component.empty());
                   }
+                  tooltip.addAll(DietTooltip.getEffectsForGroup(group.getName(), suite,
+                      diet.getValues(), player));
                 }
                 y += 20;
               }
 
               if (tooltip != null) {
-                List<Component> tooltips = Lists.newArrayList(tooltip);
-                guiGraphics.renderComponentTooltip(this.font, tooltips, mouseX, mouseY);
+                guiGraphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
               }
             }));
       }

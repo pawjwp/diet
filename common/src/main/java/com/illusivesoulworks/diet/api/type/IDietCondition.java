@@ -19,6 +19,8 @@ package com.illusivesoulworks.diet.api.type;
 
 import com.illusivesoulworks.diet.common.data.effect.DietEffect;
 import java.util.Map;
+import java.util.Set;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
 public interface IDietCondition {
@@ -26,4 +28,12 @@ public interface IDietCondition {
   DietEffect.MatchMethod getMatchMethod();
 
   int getMatches(Player player, Map<String, Float> values);
+
+  Set<String> getGroups();
+
+  double getAbove();
+
+  double getBelow();
+
+  CompoundTag save();
 }

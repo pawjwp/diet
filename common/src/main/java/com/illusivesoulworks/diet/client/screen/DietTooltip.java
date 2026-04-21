@@ -17,12 +17,21 @@
 
 package com.illusivesoulworks.diet.client.screen;
 
+import com.illusivesoulworks.diet.DietConstants;
 import com.illusivesoulworks.diet.api.DietApi;
+import com.illusivesoulworks.diet.api.type.IDietAttribute;
+import com.illusivesoulworks.diet.api.type.IDietCondition;
+import com.illusivesoulworks.diet.api.type.IDietEffect;
+import com.illusivesoulworks.diet.api.type.IDietStatusEffect;
+import com.illusivesoulworks.diet.api.type.IDietSuite;
+import com.illusivesoulworks.diet.common.data.effect.DietEffect;
 import com.illusivesoulworks.diet.common.data.effect.DietEffectsInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -30,6 +39,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class DietTooltip {
@@ -78,24 +88,161 @@ public class DietTooltip {
     }
 
     for (Map.Entry<MobEffect, Integer> effect : mergedEffects.entrySet()) {
-      MobEffect effect1 = effect.getKey();
-      MutableComponent iformattabletextcomponent =
-          Component.translatable(effect1.getDescriptionId());
-
-      if (effect.getValue() > 0) {
-        iformattabletextcomponent =
-            Component.translatable("potion.withAmplifier", iformattabletextcomponent,
-                Component.translatable("potion.potency." + effect.getValue()));
-      }
-      tooltips.add(
-          iformattabletextcomponent.withStyle(effect1.getCategory().getTooltipFormatting()));
+      tooltips.add(formatStatusEffect(effect.getKey(), effect.getValue()));
     }
     return tooltips;
   }
 
-  private static void addAttributeTooltip(List<Component> tooltips, float amount,
-                                          AttributeModifier.Operation operation,
-                                          Attribute attribute) {
+  public static List<Component> getEffectsForGroup(String groupName, IDietSuite suite,
+                                                   Map<String, Float> values, Player player) {
+    List<Component> lines = new ArrayList<>();
+
+    for (IDietEffect effect : suite.getEffects()) {
+      boolean allMatch = true;
+
+      for (IDietCondition condition : effect.getConditions()) {
+        if (condition.getMatches(player, values) == 0) {
+          allMatch = false;
+          break;
+        }
+      }
+
+      if (!allMatch) {
+        continue;
+      }
+      boolean everyStyle = false;
+
+      for (IDietCondition condition : effect.getConditions()) {
+
+        if (condition.getMatchMethod() == DietEffect.MatchMethod.EVERY) {
+          everyStyle = true;
+          break;
+        }
+      }
+
+      if (everyStyle) {
+        boolean qualifies = false;
+
+        for (IDietCondition condition : effect.getConditions()) {
+
+          if (condition.getMatchMethod() != DietEffect.MatchMethod.EVERY) {
+            continue;
+          }
+
+          if (!condition.getGroups().contains(groupName)) {
+            continue;
+          }
+          Float v = values.get(groupName);
+
+          if (v != null && v >= condition.getAbove() && v <= condition.getBelow()) {
+            qualifies = true;
+            break;
+          }
+        }
+
+        if (!qualifies) {
+          continue;
+        }
+        emitEffectLines(lines, effect, null);
+      } else {
+        Set<String> others = new LinkedHashSet<>();
+        boolean includes = false;
+
+        for (IDietCondition condition : effect.getConditions()) {
+
+          if (condition.getMatchMethod() == DietEffect.MatchMethod.NONE) {
+            continue;
+          }
+
+          for (String g : condition.getGroups()) {
+
+            if (g.equals(groupName)) {
+              includes = true;
+            } else {
+              others.add(g);
+            }
+          }
+        }
+
+        if (!includes) {
+          continue;
+        }
+        Component suffix = others.isEmpty() ? null : buildWithSuffix(others);
+        emitEffectLines(lines, effect, suffix);
+      }
+    }
+
+    if (lines.isEmpty()) {
+      List<Component> out = new ArrayList<>();
+      out.add(Component.translatable("tooltip.diet.no_active_effects")
+          .withStyle(ChatFormatting.GRAY));
+      return out;
+    }
+    List<Component> out = new ArrayList<>();
+    out.add(Component.translatable("tooltip.diet.group_effects",
+        Component.translatable("groups." + DietConstants.MOD_ID + "." + groupName + ".name")));
+    out.add(Component.empty());
+    out.addAll(lines);
+    return out;
+  }
+
+  private static void emitEffectLines(List<Component> lines, IDietEffect effect, Component suffix) {
+
+    for (IDietAttribute attribute : effect.getAttributes()) {
+      MutableComponent line = formatAttributeLine(attribute.getAttribute(),
+          attribute.getOperation(), (float) attribute.getBaseAmount());
+
+      if (line == null) {
+        continue;
+      }
+
+      if (suffix != null) {
+        line.append(Component.literal(" ")).append(suffix);
+      }
+      lines.add(line);
+    }
+
+    for (IDietStatusEffect statusEffect : effect.getStatusEffects()) {
+      MutableComponent line = formatStatusEffect(statusEffect.getEffect(),
+          statusEffect.getBasePower());
+
+      if (suffix != null) {
+        line.append(Component.literal(" ")).append(suffix);
+      }
+      lines.add(line);
+    }
+  }
+
+  private static MutableComponent formatStatusEffect(MobEffect effect, int amplifier) {
+    MutableComponent name = Component.translatable(effect.getDescriptionId());
+
+    if (amplifier > 0) {
+      name = Component.translatable("potion.withAmplifier", name,
+          Component.translatable("potion.potency." + amplifier));
+    }
+    return name.withStyle(effect.getCategory().getTooltipFormatting());
+  }
+
+  private static Component buildWithSuffix(Set<String> others) {
+    MutableComponent joined = Component.empty();
+    int i = 0;
+
+    for (String g : others) {
+
+      if (i > 0) {
+        joined.append(Component.literal(", "));
+      }
+      joined.append(Component.translatable(
+          "groups." + DietConstants.MOD_ID + "." + g + ".name"));
+      i++;
+    }
+    return Component.translatable("tooltip.diet.with_groups", joined)
+        .withStyle(ChatFormatting.GRAY);
+  }
+
+  private static MutableComponent formatAttributeLine(Attribute attribute,
+                                                      AttributeModifier.Operation operation,
+                                                      float amount) {
     double formattedAmount;
 
     if (operation != AttributeModifier.Operation.MULTIPLY_BASE &&
@@ -111,14 +258,25 @@ public class DietTooltip {
     }
 
     if (amount > 0.0D) {
-      tooltips.add((Component.translatable("attribute.modifier.plus." + operation.toValue(),
+      return Component.translatable("attribute.modifier.plus." + operation.toValue(),
           ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(formattedAmount),
-          Component.translatable(attribute.getDescriptionId()))).withStyle(ChatFormatting.BLUE));
+          Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE);
     } else if (amount < 0.0D) {
       formattedAmount = formattedAmount * -1.0D;
-      tooltips.add((Component.translatable("attribute.modifier.take." + operation.toValue(),
+      return Component.translatable("attribute.modifier.take." + operation.toValue(),
           ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(formattedAmount),
-          Component.translatable(attribute.getDescriptionId()))).withStyle(ChatFormatting.RED));
+          Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.RED);
+    }
+    return null;
+  }
+
+  private static void addAttributeTooltip(List<Component> tooltips, float amount,
+                                          AttributeModifier.Operation operation,
+                                          Attribute attribute) {
+    MutableComponent line = formatAttributeLine(attribute, operation, amount);
+
+    if (line != null) {
+      tooltips.add(line);
     }
   }
 

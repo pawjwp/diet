@@ -57,7 +57,13 @@ public final class DietSuite implements IDietSuite {
         set.add(DietGroup.load((CompoundTag) Objects.requireNonNull(groups.get(key))));
       }
     }
-    return new DietSuite(tag.getString("Name"), set, new ArrayList<>());
+    List<IDietEffect> effects = new ArrayList<>();
+    ListTag effectsList = tag.getList("Effects", Tag.TAG_COMPOUND);
+
+    for (int i = 0; i < effectsList.size(); i++) {
+      effects.add(DietEffect.load(effectsList.getCompound(i)));
+    }
+    return new DietSuite(tag.getString("Name"), set, effects, segments);
   }
 
   @Override
@@ -85,6 +91,12 @@ public final class DietSuite implements IDietSuite {
       groups.put(group.getName(), group.save());
     }
     tag.put("Groups", groups);
+    ListTag effectsList = new ListTag();
+
+    for (IDietEffect effect : this.effects) {
+      effectsList.add(effect.save());
+    }
+    tag.put("Effects", effectsList);
     return tag;
   }
 

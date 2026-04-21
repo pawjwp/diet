@@ -17,6 +17,7 @@
 
 package com.illusivesoulworks.diet.api.type;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
@@ -29,4 +30,6 @@ public interface IDietAttribute {
   double getBaseAmount();
 
   double getIncrement();
+
+  CompoundTag save();
 }

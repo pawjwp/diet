@@ -19,6 +19,7 @@ package com.illusivesoulworks.diet.api.type;
 
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.nbt.CompoundTag;
 
 public interface IDietEffect {
 
@@ -29,4 +30,6 @@ public interface IDietEffect {
   List<IDietStatusEffect> getStatusEffects();
 
   UUID getUuid();
+
+  CompoundTag save();
 }
