@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.illusivesoulworks.diet.DietConstants;
 import com.illusivesoulworks.diet.api.type.IDietGroup;
 import com.illusivesoulworks.diet.api.type.IDietSuite;
+import com.illusivesoulworks.diet.api.type.QualitySegment;
 import com.illusivesoulworks.diet.api.util.DietColor;
 import com.illusivesoulworks.diet.client.DietKeys;
 import com.illusivesoulworks.diet.common.config.DietConfig;
@@ -151,12 +152,19 @@ public class DietScreen extends Screen {
                 guiGraphics.drawString(this.font, text, x + 20, y, getTextColor(), false);
                 RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
                 RenderSystem.setShaderTexture(0, ICONS);
+                int lowerY = y - 5;
+                int upperX = x + 220;
+                int upperY = lowerY + 16;
+                boolean hovered =
+                    mouseX >= x && mouseX <= upperX && mouseY >= lowerY && mouseY <= upperY;
                 DietColor color = diet.isActive() ? group.getColor() : DietColor.GRAY;
-                int red = color.red();
-                int green = color.green();
-                int blue = color.blue();
-                int percent = (int) Math.floor(diet.getValue(group.getName()) * 100.0f);
+                int red = hovered ? 255 : color.red();
+                int green = hovered ? 255 : color.green();
+                int blue = hovered ? 255 : color.blue();
+                float value = diet.getValue(group.getName());
+                int percent = (int) Math.floor(value * 100.0f);
                 String percentText = percent + "%";
+                List<QualitySegment> segments = suite.getQualitySegments(group.getName());
                 coloredBlit(guiGraphics.pose(), x + 90, y + 2, 102, 5, 20, 0, 102, 5, 256, 256, red,
                     green, blue, 255);
 
@@ -165,18 +173,21 @@ public class DietScreen extends Screen {
                   coloredBlit(guiGraphics.pose(), x + 90, y + 2, texWidth, 5, 20, 5, texWidth, 5,
                       256, 256, red, green, blue, 255);
                 }
+
+                if (hovered) {
+                  drawQualitySegments(guiGraphics, x + 90, y + 2, percent, segments);
+                }
                 int xPos = x + 200;
                 int yPos = y + 1;
+                int textColor = hovered ? getColorAtValue(value, segments, 0xFFFFFF)
+                    : color.getRGB();
                 guiGraphics.drawString(this.font, percentText, (xPos + 1), yPos, 0, false);
                 guiGraphics.drawString(this.font, percentText, (xPos - 1), yPos, 0, false);
                 guiGraphics.drawString(this.font, percentText, xPos, (yPos + 1), 0, false);
                 guiGraphics.drawString(this.font, percentText, xPos, (yPos - 1), 0, false);
-                guiGraphics.drawString(this.font, percentText, xPos, yPos, color.getRGB(), false);
-                int lowerY = y - 5;
-                int upperX = x + 220;
-                int upperY = lowerY + 16;
+                guiGraphics.drawString(this.font, percentText, xPos, yPos, textColor, false);
 
-                if (mouseX >= x && mouseX <= upperX && mouseY >= lowerY && mouseY <= upperY) {
+                if (hovered) {
                   tooltip = Lists.newArrayList();
                   String key =
                       "groups." + DietConstants.MOD_ID + "." + group.getName() + ".tooltip";
@@ -236,6 +247,41 @@ public class DietScreen extends Screen {
   @Override
   public boolean isPauseScreen() {
     return false;
+  }
+
+  private static int getColorAtValue(float value, List<QualitySegment> segments, int defaultColor) {
+    for (QualitySegment seg : segments) {
+
+      if (value >= seg.start() && value <= seg.end()) {
+        return seg.quality();
+      }
+    }
+    return defaultColor;
+  }
+
+  private static void drawQualitySegments(GuiGraphics g, int barX, int barY, int percent,
+                                          List<QualitySegment> segments) {
+    for (QualitySegment seg : segments) {
+      int segStart = (int) (seg.start() * 102);
+      int segEnd = (int) (seg.end() * 102);
+      int segWidth = segEnd - segStart;
+
+      if (segWidth <= 0) {
+        continue;
+      }
+      int r = (seg.quality() >> 16) & 0xFF;
+      int gr = (seg.quality() >> 8) & 0xFF;
+      int b = seg.quality() & 0xFF;
+      coloredBlit(g.pose(), barX + segStart, barY, segWidth, 5,
+          20 + segStart, 0, segWidth, 5, 256, 256, r, gr, b, 255);
+      int fillEnd = Math.min(segEnd, percent + 1);
+
+      if (fillEnd > segStart) {
+        int fillWidth = fillEnd - segStart;
+        coloredBlit(g.pose(), barX + segStart, barY, fillWidth, 5,
+            20 + segStart, 5, fillWidth, 5, 256, 256, r, gr, b, 255);
+      }
+    }
   }
 
   private static void coloredBlit(PoseStack matrixStack, int x, int y, int width, int height,

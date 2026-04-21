@@ -60,7 +60,8 @@
           "above": 0.8,
           "below": 1.0
         }
-      ]
+      ],
+      "quality": "#00FF00"
     },
     {
       "attributes": [
@@ -83,7 +84,8 @@
           "above": 0.8,
           "below": 1.0
         }
-      ]
+      ],
+      "quality": "#FF0000"
     }
   ]
 }

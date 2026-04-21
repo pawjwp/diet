@@ -17,6 +17,7 @@
 
 package com.illusivesoulworks.diet.api.type;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.effect.MobEffect;
 
 public interface IDietStatusEffect {
@@ -26,4 +27,6 @@ public interface IDietStatusEffect {
   int getBasePower();
 
   int getIncrement();
+
+  CompoundTag save();
 }

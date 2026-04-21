@@ -218,7 +218,21 @@ public class DietSuites extends SimpleJsonResourceReloadListener {
       }
       UUID uuid = UUID.nameUUIDFromBytes((UUID_PREFIX + uuidSuffix).getBytes());
       uuidSuffix++;
-      builder.effect(new DietEffect(uuid, finalAttributes, finalStatusEffects, finalConditions));
+      String qualityHex = GsonHelper.getAsString(effectObject, "quality", "#FFFFFF");
+      int quality = parseHexColor(qualityHex);
+      builder.effect(
+          new DietEffect(uuid, finalAttributes, finalStatusEffects, finalConditions, quality));
+    }
+  }
+
+  private static int parseHexColor(String hex) {
+    String stripped = hex.startsWith("#") ? hex.substring(1) : hex;
+
+    try {
+      return Integer.parseInt(stripped, 16) & 0xFFFFFF;
+    } catch (NumberFormatException e) {
+      DietConstants.LOG.error("Invalid quality hex color '{}', defaulting to #FFFFFF", hex);
+      return 0xFFFFFF;
     }
   }
 

@@ -31,5 +31,7 @@ public interface IDietEffect {
 
   UUID getUuid();
 
+  int getQuality();
+
   CompoundTag save();
 }

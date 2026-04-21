@@ -47,13 +47,16 @@ public class DietEffect implements IDietEffect {
   public final List<IDietStatusEffect> statusEffects;
   public final List<IDietCondition> conditions;
   public final UUID uuid;
+  public final int quality;
 
   public DietEffect(UUID uuid, List<IDietAttribute> attributes,
-                    List<IDietStatusEffect> statusEffects, List<IDietCondition> conditions) {
+                    List<IDietStatusEffect> statusEffects, List<IDietCondition> conditions,
+                    int quality) {
     this.attributes = attributes;
     this.statusEffects = statusEffects;
     this.conditions = conditions;
     this.uuid = uuid;
+    this.quality = quality;
   }
 
   @Override
@@ -74,6 +77,11 @@ public class DietEffect implements IDietEffect {
   @Override
   public UUID getUuid() {
     return this.uuid;
+  }
+
+  @Override
+  public int getQuality() {
+    return this.quality;
   }
 
   @Override

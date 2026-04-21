@@ -17,19 +17,5 @@
 
 package com.illusivesoulworks.diet.api.type;
 
-import java.util.List;
-import java.util.Set;
-import net.minecraft.nbt.CompoundTag;
-
-public interface IDietSuite {
-
-  String getName();
-
-  Set<IDietGroup> getGroups();
-
-  List<IDietEffect> getEffects();
-
-  List<QualitySegment> getQualitySegments(String groupName);
-
-  CompoundTag save();
+public record QualitySegment(float start, float end, int quality) {
 }
