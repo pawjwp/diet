@@ -1,6 +1,7 @@
 {
   "gui.diet.title": "Diet",
   "gui.diet.close": "Done",
+  "gui.diet.quality_view": "Quality View",
   "tooltip.diet.eaten": "When eaten:",
   "tooltip.diet.group": "+%s%% %s",
   "tooltip.diet.group_": "+%s",
@@ -51,5 +52,7 @@
   "gui.diet.config.generateGroupsForEmptyItems.name": "Generate food groups for unclassified items",
   "gui.diet.config.generateGroupsForEmptyItems.description": "If enabled, food groups are assigned to unclassified items based on ingredients.",
   "gui.diet.config.hideTooltipsUntilEaten.name": "Hide tooltips for uneaten items",
-  "gui.diet.config.hideTooltipsUntilEaten.description": "If enabled, food group tooltips are hidden until player has eaten that type of item."
+  "gui.diet.config.hideTooltipsUntilEaten.description": "If enabled, food group tooltips are hidden until player has eaten that type of item.",
+  "gui.diet.config.qualityDisplayMode.name": "Quality display mode",
+  "gui.diet.config.qualityDisplayMode.description": "How quality coloring for nutrient bars is displayed in the Diet GUI.\nNONE = Never display quality\nHOVER = Display quality only when hovering a bar\nTOGGLE = Display a toggle button that enables quality on all bars\nBOTH = Enable both hover and toggle behaviors"
 }

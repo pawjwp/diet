@@ -25,6 +25,7 @@ import com.illusivesoulworks.diet.api.type.QualitySegment;
 import com.illusivesoulworks.diet.api.util.DietColor;
 import com.illusivesoulworks.diet.client.DietKeys;
 import com.illusivesoulworks.diet.common.config.DietConfig;
+import com.illusivesoulworks.diet.common.config.DietConfig.QualityDisplayMode;
 import com.illusivesoulworks.diet.common.data.effect.DietEffectsInfo;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.platform.Services;
@@ -40,7 +41,10 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -60,6 +64,7 @@ public class DietScreen extends Screen {
       new ResourceLocation(DietConstants.MOD_ID, "textures/gui/icons.png");
 
   public static DietEffectsInfo tooltip = new DietEffectsInfo();
+  private static boolean qualityToggled = false;
   private final Set<IDietGroup> groups = new HashSet<>();
 
   private final int xSize;
@@ -82,6 +87,13 @@ public class DietScreen extends Screen {
               .map(IDietSuite::getGroups).orElse(Set.of())).orElse(Set.of()));
     }
     this.ySize = this.groups.size() * 20 + 60;
+    QualityDisplayMode mode = DietConfig.CLIENT.qualityDisplayMode.get();
+
+    if (mode == QualityDisplayMode.TOGGLE || mode == QualityDisplayMode.BOTH) {
+      int toggleX = this.width / 2 - this.xSize / 2 + 208;
+      int toggleY = this.height / 2 - this.ySize / 2 + 7;
+      this.addRenderableWidget(new QualityToggleButton(toggleX, toggleY));
+    }
     this.addRenderableWidget(
         Button.builder(Component.translatable("gui.diet.close"), (button) -> {
           if (this.minecraft != null && this.minecraft.player != null) {
@@ -139,6 +151,12 @@ public class DietScreen extends Screen {
       LocalPlayer player = this.minecraft.player;
 
       if (player != null) {
+        QualityDisplayMode mode = DietConfig.CLIENT.qualityDisplayMode.get();
+        boolean hoverEnabled =
+            mode == QualityDisplayMode.HOVER || mode == QualityDisplayMode.BOTH;
+        boolean toggleEnabled =
+            (mode == QualityDisplayMode.TOGGLE || mode == QualityDisplayMode.BOTH)
+                && qualityToggled;
         Services.CAPABILITY.get(player).ifPresent(
             diet -> DietSuites.getSuite(this.minecraft.level, diet.getSuite()).ifPresent(suite -> {
               int y = this.height / 2 - this.ySize / 2 + 25;
@@ -152,15 +170,16 @@ public class DietScreen extends Screen {
                 guiGraphics.drawString(this.font, text, x + 20, y, getTextColor(), false);
                 RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
                 RenderSystem.setShaderTexture(0, ICONS);
-                int lowerY = y - 5;
+                int lowerY = y - 1;
                 int upperX = x + 220;
-                int upperY = lowerY + 16;
+                int upperY = lowerY + 10;
                 boolean hovered =
                     mouseX >= x && mouseX <= upperX && mouseY >= lowerY && mouseY <= upperY;
+                boolean showQuality = toggleEnabled || (hoverEnabled && hovered);
                 DietColor color = diet.isActive() ? group.getColor() : DietColor.GRAY;
-                int red = hovered ? 255 : color.red();
-                int green = hovered ? 255 : color.green();
-                int blue = hovered ? 255 : color.blue();
+                int red = showQuality ? 255 : color.red();
+                int green = showQuality ? 255 : color.green();
+                int blue = showQuality ? 255 : color.blue();
                 float value = diet.getValue(group.getName());
                 int percent = (int) Math.floor(value * 100.0f);
                 String percentText = percent + "%";
@@ -174,12 +193,12 @@ public class DietScreen extends Screen {
                       256, 256, red, green, blue, 255);
                 }
 
-                if (hovered) {
+                if (showQuality) {
                   drawQualitySegments(guiGraphics, x + 90, y + 2, percent, segments);
                 }
                 int xPos = x + 200;
                 int yPos = y + 1;
-                int textColor = hovered ? getColorAtValue(value, segments, 0xFFFFFF)
+                int textColor = showQuality ? getColorAtValue(value, segments, 0xFFFFFF)
                     : color.getRGB();
                 guiGraphics.drawString(this.font, percentText, (xPos + 1), yPos, 0, false);
                 guiGraphics.drawString(this.font, percentText, (xPos - 1), yPos, 0, false);
@@ -281,6 +300,34 @@ public class DietScreen extends Screen {
         coloredBlit(g.pose(), barX + segStart, barY, fillWidth, 5,
             20 + segStart, 5, fillWidth, 5, 256, 256, r, gr, b, 255);
       }
+    }
+  }
+
+  private static class QualityToggleButton extends AbstractButton {
+
+    QualityToggleButton(int x, int y) {
+      super(x, y, 16, 16,
+          Component.translatable("gui." + DietConstants.MOD_ID + ".quality_view"));
+      this.setTooltip(Tooltip.create(
+          Component.translatable("gui." + DietConstants.MOD_ID + ".quality_view")));
+    }
+
+    @Override
+    public void onPress() {
+      qualityToggled = !qualityToggled;
+    }
+
+    @Override
+    protected void renderWidget(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY,
+                                float partialTicks) {
+      int u = qualityToggled ? 16 : 0;
+      int v = this.isHovered() ? 69 : 53;
+      guiGraphics.blit(ICONS, this.getX(), this.getY(), 16, 16, u, v, 16, 16, 256, 256);
+    }
+
+    @Override
+    protected void updateWidgetNarration(@Nonnull NarrationElementOutput narration) {
+      this.defaultButtonNarrationText(narration);
     }
   }
 

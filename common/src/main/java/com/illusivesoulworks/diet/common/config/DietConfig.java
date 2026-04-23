@@ -55,11 +55,22 @@ public class DietConfig {
     public final SpectreConfigSpec.IntValue buttonY;
     public final SpectreConfigSpec.ConfigValue<String> textColor;
     public final SpectreConfigSpec.BooleanValue addButton;
+    public final SpectreConfigSpec.EnumValue<QualityDisplayMode> qualityDisplayMode;
 
     public Client(SpectreConfigSpec.Builder builder) {
       addButton =
           builder.comment("If enabled, a button to the Diet GUI appears in player inventories.")
               .translation(CONFIG_PREFIX + "addButton").define("addButton", true);
+
+      qualityDisplayMode = builder
+          .comment("""
+              How quality coloring for nutrient bars is displayed in the Diet GUI.
+              NONE = Never display quality
+              HOVER = Display quality only when hovering a bar
+              TOGGLE = Display a toggle button that enables quality on all bars
+              BOTH = Enable both hover and toggle behaviors""")
+          .translation(CONFIG_PREFIX + "qualityDisplayMode")
+          .defineEnum("qualityDisplayMode", QualityDisplayMode.NONE);
 
       buttonX = builder.comment("The x-position of the Diet GUI button in player inventories.")
           .translation(CONFIG_PREFIX + "buttonX").defineInRange("buttonX", 126, -10000, 10000);
@@ -156,5 +167,12 @@ public class DietConfig {
     AMOUNT,
     PERCENT,
     RESET
+  }
+
+  public enum QualityDisplayMode {
+    NONE,
+    HOVER,
+    TOGGLE,
+    BOTH
   }
 }
