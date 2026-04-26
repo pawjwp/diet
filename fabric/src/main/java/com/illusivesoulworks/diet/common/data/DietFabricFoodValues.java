@@ -15,22 +15,26 @@
  * License along with Diet.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.illusivesoulworks.diet.platform.services;
+package com.illusivesoulworks.diet.common.data;
 
-import com.illusivesoulworks.diet.api.type.IDietTracker;
+import com.illusivesoulworks.diet.DietCommonMod;
 import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
-import com.illusivesoulworks.diet.common.data.group.DietGroups;
-import com.illusivesoulworks.diet.common.data.suite.DietSuites;
-import java.util.Optional;
-import net.minecraft.world.entity.player.Player;
+import java.util.Collection;
+import java.util.Collections;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.ResourceReloadListenerKeys;
+import net.minecraft.resources.ResourceLocation;
 
-public interface ICapabilityService {
+public class DietFabricFoodValues extends DietFoodValues
+    implements IdentifiableResourceReloadListener {
 
-  Optional<? extends IDietTracker> get(Player player);
+  @Override
+  public ResourceLocation getFabricId() {
+    return DietCommonMod.resource("food_values");
+  }
 
-  DietGroups getGroupsListener();
-
-  DietSuites getSuitesListener();
-
-  DietFoodValues getFoodValuesListener();
+  @Override
+  public Collection<ResourceLocation> getFabricDependencies() {
+    return Collections.singleton(ResourceReloadListenerKeys.TAGS);
+  }
 }

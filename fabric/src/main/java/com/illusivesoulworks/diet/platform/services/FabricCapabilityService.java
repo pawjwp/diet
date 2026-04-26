@@ -19,8 +19,10 @@ package com.illusivesoulworks.diet.platform.services;
 
 import com.illusivesoulworks.diet.api.type.IDietTracker;
 import com.illusivesoulworks.diet.common.component.DietComponents;
+import com.illusivesoulworks.diet.common.data.DietFabricFoodValues;
 import com.illusivesoulworks.diet.common.data.DietFabricGroups;
 import com.illusivesoulworks.diet.common.data.DietFabricSuites;
+import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import java.util.Optional;
@@ -41,5 +43,10 @@ public class FabricCapabilityService implements ICapabilityService {
   @Override
   public DietSuites getSuitesListener() {
     return new DietFabricSuites();
+  }
+
+  @Override
+  public DietFoodValues getFoodValuesListener() {
+    return new DietFabricFoodValues();
   }
 }

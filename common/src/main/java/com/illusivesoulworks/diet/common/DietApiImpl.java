@@ -21,6 +21,7 @@ import com.illusivesoulworks.diet.api.DietApi;
 import com.illusivesoulworks.diet.api.type.IDietGroup;
 import com.illusivesoulworks.diet.api.type.IDietResult;
 import com.illusivesoulworks.diet.common.config.DietConfig;
+import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.util.DietResult;
 import com.illusivesoulworks.diet.common.util.DietValueGenerator;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -104,6 +106,11 @@ public class DietApiImpl extends DietApi {
 
   @Override
   public IDietResult get(Player player, ItemStack input) {
+    Optional<IDietResult> dataOverride = getDataDrivenResult(player, input);
+
+    if (dataOverride.isPresent()) {
+      return dataOverride.get();
+    }
     Set<IDietGroup> groups = getGroups(player, input);
 
     if (groups.isEmpty()) {
@@ -149,6 +156,14 @@ public class DietApiImpl extends DietApi {
 
   @Override
   public IDietResult get(Player player, List<ItemStack> stacks, int food, float saturation) {
+
+    if (stacks.size() == 1) {
+      Optional<IDietResult> dataOverride = getDataDrivenResult(player, stacks.get(0));
+
+      if (dataOverride.isPresent()) {
+        return dataOverride.get();
+      }
+    }
     Set<IDietGroup> groups = new HashSet<>();
 
     for (ItemStack stack : stacks) {
@@ -159,6 +174,15 @@ public class DietApiImpl extends DietApi {
       return DietResult.EMPTY;
     }
     return new DietResult(calculate(food, saturation, groups));
+  }
+
+  private static Optional<IDietResult> getDataDrivenResult(Player player, ItemStack stack) {
+
+    if (!DietConfig.SERVER.enableDataFoodValues.get()) {
+      return Optional.empty();
+    }
+    Set<IDietGroup> available = DietGroups.getGroups(player.level());
+    return DietFoodValues.SERVER.lookup(stack, available).map(DietResult::new);
   }
 
   private static Map<IDietGroup, Float> calculate(float healing, float saturation,

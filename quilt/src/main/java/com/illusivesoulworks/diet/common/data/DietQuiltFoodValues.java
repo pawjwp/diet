@@ -15,22 +15,19 @@
  * License along with Diet.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.illusivesoulworks.diet.platform.services;
+package com.illusivesoulworks.diet.common.data;
 
-import com.illusivesoulworks.diet.api.type.IDietTracker;
+import com.illusivesoulworks.diet.DietCommonMod;
 import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
-import com.illusivesoulworks.diet.common.data.group.DietGroups;
-import com.illusivesoulworks.diet.common.data.suite.DietSuites;
-import java.util.Optional;
-import net.minecraft.world.entity.player.Player;
+import javax.annotation.Nonnull;
+import net.minecraft.resources.ResourceLocation;
+import org.quiltmc.qsl.resource.loader.api.reloader.IdentifiableResourceReloader;
 
-public interface ICapabilityService {
+public class DietQuiltFoodValues extends DietFoodValues implements IdentifiableResourceReloader {
 
-  Optional<? extends IDietTracker> get(Player player);
-
-  DietGroups getGroupsListener();
-
-  DietSuites getSuitesListener();
-
-  DietFoodValues getFoodValuesListener();
+  @Nonnull
+  @Override
+  public ResourceLocation getQuiltId() {
+    return DietCommonMod.resource("food_values");
+  }
 }

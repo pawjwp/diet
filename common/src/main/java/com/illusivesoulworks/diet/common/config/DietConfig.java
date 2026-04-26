@@ -96,6 +96,7 @@ public class DietConfig {
 
     public final SpectreConfigSpec.BooleanValue hideTooltipsUntilEaten;
     public final SpectreConfigSpec.BooleanValue generateGroupsForEmptyItems;
+    public final SpectreConfigSpec.BooleanValue enableDataFoodValues;
 
     public Server(SpectreConfigSpec.Builder builder) {
       deathPenaltyMin =
@@ -137,6 +138,13 @@ public class DietConfig {
               "If enabled, food groups are assigned to unclassified items based on ingredients.")
           .translation(CONFIG_PREFIX + "generateGroupsForEmptyItems")
           .define("generateGroupsForEmptyItems", true);
+
+      enableDataFoodValues = builder.comment(
+              "If enabled, the datapack layer at 'diet/food_values/' is consulted for per-item"
+                  + " nutrient values. Matching entries fully replace the tag+hunger formula for"
+                  + " that item.")
+          .translation(CONFIG_PREFIX + "enableDataFoodValues")
+          .define("enableDataFoodValues", false);
 
       hideTooltipsUntilEaten = builder.comment(
               "If enabled, food group tooltips are hidden until player has eaten that type of item.")

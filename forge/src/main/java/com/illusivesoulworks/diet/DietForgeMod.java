@@ -24,6 +24,7 @@ import com.illusivesoulworks.diet.common.DietEvents;
 import com.illusivesoulworks.diet.common.command.DietCommand;
 import com.illusivesoulworks.diet.common.command.DietGroupArgument;
 import com.illusivesoulworks.diet.common.config.DietConfigLoader;
+import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.common.integration.IntegrationManager;
@@ -96,6 +97,7 @@ public class DietForgeMod {
   private void addReloaders(final AddReloadListenerEvent evt) {
     evt.addListener(DietGroups.SERVER);
     evt.addListener(DietSuites.SERVER);
+    evt.addListener(DietFoodValues.SERVER);
   }
 
   private void process(final InterModProcessEvent evt) {

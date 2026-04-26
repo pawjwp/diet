@@ -19,6 +19,7 @@ package com.illusivesoulworks.diet.platform.services;
 
 import com.illusivesoulworks.diet.api.type.IDietTracker;
 import com.illusivesoulworks.diet.common.capability.DietCapability;
+import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import java.util.Optional;
@@ -39,5 +40,10 @@ public class ForgeCapabilityService implements ICapabilityService {
   @Override
   public DietSuites getSuitesListener() {
     return new DietSuites();
+  }
+
+  @Override
+  public DietFoodValues getFoodValuesListener() {
+    return new DietFoodValues();
   }
 }
