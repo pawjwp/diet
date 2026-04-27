@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": {
+    "immersive_weathering:azalea_flowers": {
+      "vegetables": 0.01
+    },
+    "immersive_weathering:enchanted_golden_moss_clump": {
+      "vegetables": 0.01
+    },
+    "immersive_weathering:golden_moss_clump": {
+      "vegetables": 0.01
+    },
+    "immersive_weathering:moss_clump": {
+      "vegetables": 0.01
+    }
+  }
+}

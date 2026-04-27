@@ -1,0 +1,23 @@
+{
+  "replace": false,
+  "values": {
+    "nfm:bread_slice": {
+      "grains": 0.015
+    },
+    "nfm:toast": {
+      "grains": 0.02
+    },
+    "nfm:sausage": {
+      "proteins": 0.01
+    },
+    "nfm:cooked_sausage": {
+      "proteins": 0.02
+    },
+    "nfm:kebab": {
+      "proteins": 0.02
+    },
+    "nfm:cooked_kebab": {
+      "proteins": 0.045
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": {
+    "thermal:syrup_bottle": {
+      "sugars": 0.16
+    }
+  }
+}

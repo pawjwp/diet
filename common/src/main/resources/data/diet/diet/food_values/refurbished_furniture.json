@@ -1,0 +1,39 @@
+{
+  "replace": false,
+  "values": {
+    "refurbished_furniture:cheese": {
+      "proteins": 0.1
+    },
+    "refurbished_furniture:bread_slice": {
+      "grains": 0.015
+    },
+    "refurbished_furniture:toast": {
+      "grains": 0.02
+    },
+    "refurbished_furniture:cheese_sandwich": {
+      "grains": 0.04,
+      "proteins": 0.1
+    },
+    "refurbished_furniture:cheese_toastie": {
+      "grains": 0.04,
+      "proteins": 0.1
+    },
+    "refurbished_furniture:sweet_berry_jam_toast": {
+      "fruits": 0.02,
+      "grains": 0.02
+    },
+    "refurbished_furniture:glow_berry_jam_toast": {
+      "fruits": 0.02,
+      "grains": 0.02
+    },
+    "refurbished_furniture:vegetable_pizza_slice": {
+      "grains": 0.01,
+      "proteins": 0.015,
+      "vegetables": 0.015
+    },
+    "refurbished_furniture:meatlovers_pizza_slice": {
+      "grains": 0.01,
+      "proteins": 0.07
+    }
+  }
+}

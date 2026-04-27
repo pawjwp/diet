@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": {
+    "enderio:enderios": {
+      "fruits": 0.02,
+      "grains": 0.06,
+      "proteins": 0.03,
+      "sugars": 0.32
+    }
+  }
+}

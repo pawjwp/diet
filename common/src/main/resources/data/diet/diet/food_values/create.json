@@ -1,0 +1,27 @@
+{
+  "replace": false,
+  "values": {
+    "create:bar_of_chocolate": {
+      "proteins": 0.03,
+      "sugars": 0.16
+    },
+    "create:sweet_roll": {
+      "grains": 0.09,
+      "proteins": 0.03,
+      "sugars": 0.08
+    },
+    "create:chocolate_glazed_berries": {
+      "fruits": 0.02,
+      "proteins": 0.03,
+      "sugars": 0.16
+    },
+    "create:honeyed_apple": {
+      "fruits": 0.03,
+      "sugars": 0.16
+    },
+    "create:builders_tea": {
+      "proteins": 0.03,
+      "vegetables": 0.015
+    }
+  }
+}

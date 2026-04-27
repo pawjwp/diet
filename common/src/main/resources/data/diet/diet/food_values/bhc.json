@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": {
+    "bhc:relic_apple": {
+      "fruits": 0.04
+    }
+  }
+}

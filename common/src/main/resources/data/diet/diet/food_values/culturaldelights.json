@@ -1,0 +1,201 @@
+{
+  "replace": false,
+  "values": {
+    "culturaldelights:avocado": {
+      "vegetables": 0.04
+    },
+    "culturaldelights:cut_avocado": {
+      "vegetables": 0.02
+    },
+    "culturaldelights:cucumber": {
+      "vegetables": 0.04
+    },
+    "culturaldelights:pickle": {
+      "vegetables": 0.05
+    },
+    "culturaldelights:cut_cucumber": {
+      "vegetables": 0.02
+    },
+    "culturaldelights:cut_pickle": {
+      "vegetables": 0.025
+    },
+    "culturaldelights:eggplant": {
+      "vegetables": 0.04
+    },
+    "culturaldelights:cut_eggplant": {
+      "vegetables": 0.02
+    },
+    "culturaldelights:smoked_eggplant": {
+      "vegetables": 0.05
+    },
+    "culturaldelights:smoked_tomato": {
+      "fruits": 0.02,
+      "vegetables": 0.03
+    },
+    "culturaldelights:smoked_corn": {
+      "grains": 0.03,
+      "vegetables": 0.02
+    },
+    "culturaldelights:smoked_cut_eggplant": {
+      "vegetables": 0.03
+    },
+    "culturaldelights:smoked_white_eggplant": {
+      "vegetables": 0.04
+    },
+    "culturaldelights:white_eggplant": {
+      "vegetables": 0.03
+    },
+    "culturaldelights:corn_cob": {
+      "grains": 0.02,
+      "vegetables": 0.02
+    },
+    "culturaldelights:squid": {
+      "proteins": 0.05
+    },
+    "culturaldelights:cooked_squid": {
+      "proteins": 0.09
+    },
+    "culturaldelights:glow_squid": {
+      "proteins": 0.05
+    },
+    "culturaldelights:raw_calamari": {
+      "group": 0.025
+    },
+    "culturaldelights:cooked_calamari": {
+      "group": 0.05
+    },
+    "culturaldelights:popcorn": {
+      "grains": 0.02,
+      "vegetables": 0.01
+    },
+    "culturaldelights:corn_dough": {
+      "grains": 0.03,
+      "vegetables": 0.02
+    },
+    "culturaldelights:tortilla": {
+      "grains": 0.04,
+      "vegetables": 0.02
+    },
+    "culturaldelights:tortilla_chips": {
+      "grains": 0.02,
+      "vegetables": 0.01
+    },
+    "culturaldelights:elote": {
+      "grains": 0.02,
+      "proteins": 0.03,
+      "vegetables": 0.03
+    },
+    "culturaldelights:empanada": {
+      "fruits": 0.005,
+      "grains": 0.03,
+      "vegetables": 0.06
+    },
+    "culturaldelights:hearty_salad": {
+      "fruits": 0.01,
+      "grains": 0.02,
+      "vegetables": 0.1
+    },
+    "culturaldelights:beef_burrito": {
+      "grains": 0.08,
+      "proteins": 0.06,
+      "vegetables": 0.02
+    },
+    "culturaldelights:mutton_sandwich": {
+      "grains": 0.09,
+      "proteins": 0.1,
+      "vegetables": 0.03
+    },
+    "culturaldelights:eggplant_parmesan": {
+      "fruits": 0.005,
+      "grains": 0.04,
+      "proteins": 0.015,
+      "vegetables": 0.015
+    },
+    "culturaldelights:poached_eggplants": {
+      "fruits": 0.02,
+      "proteins": 0.03,
+      "vegetables": 0.09
+    },
+    "culturaldelights:eggplant_burger": {
+      "fruits": 0.01,
+      "grains": 0.09,
+      "vegetables": 0.07
+    },
+    "culturaldelights:avocado_toast": {
+      "proteins": 0.025,
+      "vegetables": 0.015
+    },
+    "culturaldelights:creamed_corn": {
+      "grains": 0.04,
+      "protein": 0.03,
+      "vegetables": 0.06
+    },
+    "culturaldelights:chicken_taco": {
+      "fruits": 0.01,
+      "grains": 0.06,
+      "proteins": 0.05,
+      "vegetables": 0.13
+    },
+    "culturaldelights:spicy_curry": {
+      "fruits": 0.02,
+      "grains": 0.04,
+      "proteins": 0.08,
+      "vegetables": 0.07
+    },
+    "culturaldelights:pork_wrap": {
+      "fruits": 0.03,
+      "grains": 0.04,
+      "proteins": 0.07,
+      "vegetables": 0.04
+    },
+    "culturaldelights:fish_taco": {
+      "fruits": 0.01,
+      "grains": 0.04,
+      "proteins": 0.06,
+      "vegetables": 0.06
+    },
+    "culturaldelights:midori_roll": {
+      "grains": 0.08,
+      "vegetables": 0.07
+    },
+    "culturaldelights:midori_roll_slice": {
+      "grains": 0.03,
+      "vegetables": 0.025
+    },
+    "culturaldelights:egg_roll": {
+      "grains": 0.015,
+      "proteins": 0.03,
+      "vegetables": 0.005
+    },
+    "culturaldelights:chicken_roll": {
+      "grains": 0.08,
+      "proteins": 0.05,
+      "vegetables": 0.06
+    },
+    "culturaldelights:chicken_roll_slice": {
+      "grains": 0.03,
+      "proteins": 0.02,
+      "vegetables": 0.02
+    },
+    "culturaldelights:pufferfish_roll": {
+      "grains": 0.02,
+      "proteins": 0.03
+    },
+    "culturaldelights:tropical_roll": {
+      "grains": 0.02,
+      "proteins": 0.03,
+      "vegetables": 0.01
+    },
+    "culturaldelights:rice_ball": {
+      "fruits": 0.005,
+      "grains": 0.02,
+      "proteins": 0.015,
+      "vegetables": 0.005
+    },
+    "culturaldelights:calamari_roll": {
+      "grains": 0.02,
+      "proteins": 0.03,
+      "vegetables": 0.01
+    }
+  }
+}

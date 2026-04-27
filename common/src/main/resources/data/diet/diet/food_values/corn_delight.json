@@ -1,0 +1,96 @@
+{
+  "replace": false,
+  "values": {
+    "corn_delight:corn": {
+      "grains": 0.02,
+      "vegetables": 0.02
+    },
+    "corn_delight:corn_seeds": {
+      "grains": 0.01,
+      "vegetables": 0.01
+    },
+    "corn_delight:grilled_corn": {
+      "grains": 0.03,
+      "vegetables": 0.02
+    },
+    "corn_delight:boiled_corn": {
+      "grains": 0.03,
+      "vegetables": 0.02
+    },
+    "corn_delight:popcorn": {
+      "grains": 0.02,
+      "vegetables": 0.01
+    },
+    "corn_delight:caramel_popcorn": {
+      "grains": 0.02,
+      "sugars": 0.16,
+      "vegetables": 0.01
+    },
+    "corn_delight:creamed_corn": {
+      "grains": 0.02,
+      "protein": 0.03,
+      "vegetables": 0.03
+    },
+    "corn_delight:corn_soup": {
+      "grains": 0.02,
+      "protein": 0.07,
+      "vegetables": 0.04
+    },
+    "corn_delight:creamy_corn_drink": {
+      "grains": 0.02,
+      "protein": 0.03,
+      "sugars": 0.16,
+      "vegetables": 0.02
+    },
+    "corn_delight:cornbread_batter": {
+      "grains": 0.02,
+      "protein": 0.02,
+      "vegetables": 0.01
+    },
+    "corn_delight:cornbread": {
+      "grains": 0.03,
+      "protein": 0.02,
+      "vegetables": 0.01
+    },
+    "corn_delight:corn_dog": {
+      "grains": 0.02,
+      "protein": 0.08,
+      "vegetables": 0.01
+    },
+    "corn_delight:classic_corn_dog": {
+      "fruits": 0.01,
+      "grains": 0.02,
+      "protein": 0.08,
+      "vegetables": 0.05
+    },
+    "corn_delight:tortilla_raw": {
+      "grains": 0.03,
+      "vegetables": 0.02
+    },
+    "corn_delight:tortilla": {
+      "grains": 0.04,
+      "vegetables": 0.02
+    },
+    "corn_delight:taco": {
+      "grains": 0.04,
+      "protein": 0.07,
+      "vegetables": 0.06
+    },
+    "corn_delight:cornbread_stuffing": {
+      "fruits": 0.02,
+      "grains": 0.04,
+      "protein": 0.02,
+      "vegetables": 0.07
+    },
+    "corn_delight:tortilla_chip": {
+      "grains": 0.015,
+      "vegetables": 0.005
+    },
+    "corn_delight:nachos_bowl": {
+      "fruits": 0.005,
+      "grains": 0.01,
+      "protein": 0.02,
+      "vegetables": 0.015
+    }
+  }
+}

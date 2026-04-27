@@ -1,0 +1,28 @@
+{
+  "replace": false,
+  "values": {
+    "pneumaticcraft:chips": {
+      "grains": 0.005,
+      "vegetables": 0.01
+    },
+    "pneumaticcraft:cod_n_chips": {
+      "grains": 0.005,
+      "proteins": 0.07,
+      "vegetables": 0.01
+    },
+    "pneumaticcraft:raw_salmon_tempura": {
+      "grains": 0.06,
+      "proteins": 0.05
+    },
+    "pneumaticcraft:salmon_tempura": {
+      "grains": 0.09,
+      "proteins": 0.09
+    },
+    "pneumaticcraft:sourdough": {
+      "grains": 0.06
+    },
+    "pneumaticcraft:sourdough_bread": {
+      "grains": 0.09
+    }
+  }
+}

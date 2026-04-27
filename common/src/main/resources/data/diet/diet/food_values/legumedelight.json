@@ -1,0 +1,109 @@
+{
+  "replace": false,
+  "values": {
+    "legumedelight:beans": {
+      "proteins": 0.03
+    },
+    "legumedelight:peanuts": {
+      "proteins": 0.03
+    },
+    "legumedelight:bean_paste": {
+      "proteins": 0.05,
+      "sugars": 0.16
+    },
+    "legumedelight:bean_patty": {
+      "grains": 0.06,
+      "proteins": 0.1
+    },
+    "legumedelight:peanut_butter": {
+      "proteins": 0.06
+    },
+    "legumedelight:refried_beans": {
+      "proteins": 0.05
+    },
+    "legumedelight:roasted_peanuts": {
+      "proteins": 0.05
+    },
+    "legumedelight:candied_peanuts": {
+      "proteins": 0.05,
+      "sugars": 0.16
+    },
+    "legumedelight:mooncake": {
+      "proteins": 0.035,
+      "grains": 0.045,
+      "sugars": 0.16
+    },
+    "legumedelight:peanut_bar": {
+      "proteins": 0.035,
+      "sugars": 0.085
+    },
+    "legumedelight:peanut_butter_cookie": {
+      "grains": 0.015,
+      "proteins": 0.01
+    },
+    "legumedelight:peanut_butter_cup": {
+      "proteins": 0.02,
+      "sugars": 0.04
+    },
+    "legumedelight:rice_cake": {
+      "grains": 0.02,
+      "proteins": 0.03,
+      "sugars": 0.08
+    },
+    "legumedelight:trail_mix": {
+      "fruits": 0.015,
+      "grains": 0.01,
+      "proteins": 0.06,
+      "sugars": 0.01
+    },
+    "legumedelight:bean_burger": {
+      "fruits": 0.01,
+      "grains": 0.15,
+      "proteins": 0.1,
+      "vegetables": 0.08
+    },
+    "legumedelight:bean_burrito": {
+      "fruits": 0.01,
+      "grains": 0.13,
+      "proteins": 0.1,
+      "vegetables": 0.05
+    },
+    "legumedelight:beans_on_toast": {
+      "fruits": 0.005,
+      "grains": 0.025,
+      "proteins": 0.025,
+      "sugars": 0.04,
+      "vegetables": 0.01
+    },
+    "legumedelight:peanut_butter_and_jam_sandwich": {
+      "fruits": 0.02,
+      "grains": 0.09,
+      "proteins": 0.06
+    },
+    "legumedelight:baked_beans": {
+      "fruits": 0.02,
+      "proteins": 0.1,
+      "sugars": 0.16,
+      "vegetables": 0.04
+    },
+    "legumedelight:beans_and_rice": {
+      "grains": 0.04,
+      "proteins": 0.05
+    },
+    "legumedelight:chili": {
+      "fruits": 0.03,
+      "proteins": 0.15,
+      "vegetables": 0.09
+    },
+    "legumedelight:pad_thai": {
+      "grains": 0.06,
+      "proteins": 0.09,
+      "vegetables": 0.01
+    },
+    "legumedelight:pasta_with_tomato_sauce": {
+      "fruits": 0.02,
+      "grains": 0.06,
+      "vegetables": 0.04
+    }
+  }
+}

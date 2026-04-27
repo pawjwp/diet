@@ -1,0 +1,71 @@
+{
+  "replace": false,
+  "values": {
+    "tconstruct:bacon": {
+      "proteins": 0.05
+    },
+    "tconstruct:jeweled_apple": {
+      "fruits": 0.03
+    },
+    "tconstruct:cheese_ingot": {
+      "proteins": 0.03
+    },
+    "tconstruct:cheese_block": {
+      "proteins": 0.12
+    },
+    "tconstruct:earth_cake": {
+      "grains": 0.01,
+      "proteins": 0.01,
+      "sugars": 0.045,
+      "vegetables": 0.005
+    },
+    "tconstruct:sky_cake": {
+      "grains": 0.01,
+      "proteins": 0.01,
+      "sugars": 0.045,
+      "vegetables": 0.005
+    },
+    "tconstruct:ichor_cake": {
+      "grains": 0.005,
+      "proteins": 0.01,
+      "sugars": 0.02,
+      "vegetables": 0.01
+    },
+    "tconstruct:ender_cake": {
+      "grains": 0.005,
+      "proteins": 0.01,
+      "sugars": 0.02,
+      "vegetables": 0.01
+    },
+    "tconstruct:blood_cake": {
+      "grains": 0.005,
+      "proteins": 0.005,
+      "sugars": 0.3,
+      "vegetables": 0.005
+    },
+    "tconstruct:magma_cake": {
+      "grains": 0.005,
+      "proteins": 0.005,
+      "sugars": 0.02,
+      "vegetables": 0.005
+    },
+    "tconstruct:meat_soup": {
+      "proteins": 0.2
+    },
+    "tconstruct:earth_slime_bottle": {
+      "proteins": 0.005
+    },
+    "tconstruct:sky_slime_bottle": {
+      "proteins": 0.005
+    },
+    "tconstruct:ender_slime_bottle": {
+      "proteins": 0.005
+    },
+    "tconstruct:ichor_slime_bottle": {
+      "proteins": 0.005
+    },
+    "tconstruct:venom_bottle": {
+      "proteins": 0.005
+    }
+  }
+}

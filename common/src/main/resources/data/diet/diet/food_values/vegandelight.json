@@ -1,0 +1,74 @@
+{
+  "replace": false,
+  "values": {
+    "vegandelight:silken_tofu": {
+      "group": 0.05
+    },
+    "vegandelight:tofu": {
+      "proteins": 0.04
+    },
+    "vegandelight:tofu_slices": {
+      "proteins": 0.02
+    },
+    "vegandelight:cooked_tofu": {
+      "proteins": 0.05
+    },
+    "vegandelight:cooked_tofu_slices": {
+      "proteins": 0.025
+    },
+    "vegandelight:smoked_tofu": {
+      "proteins": 0.05
+    },
+    "vegandelight:smoked_tofu_slices": {
+      "proteins": 0.025
+    },
+    "vegandelight:cooked_smoked_tofu": {
+      "proteins": 0.06
+    },
+    "vegandelight:cooked_smoked_tofu_slices": {
+      "proteins": 0.03
+    },
+    "vegandelight:minced_tofu": {
+      "proteins": 0.03
+    },
+    "vegandelight:tofu_patty": {
+      "proteins": 0.06
+    },
+    "vegandelight:tofish": {
+      "proteins": 0.02,
+      "vegetables": 0.01
+    },
+    "vegandelight:cooked_tofish": {
+      "group": 0.025,
+      "vegetables": 0.01
+    },
+    "vegandelight:smoked_tofish": {
+      "group": 0.025,
+      "vegetables": 0.01
+    },
+    "vegandelight:cooked_smoked_tofish": {
+      "group": 0.03,
+      "vegetables": 0.01
+    },
+    "vegandelight:tofish_roll": {
+      "proteins": 0.02,
+      "grains": 0.02,
+      "vegetables": 0.005
+    },
+    "vegandelight:smoked_tofish_roll": {
+      "proteins": 0.025,
+      "grains": 0.02,
+      "vegetables": 0.005
+    },
+    "vegandelight:soybean": {
+      "proteins": 0.05
+    },
+    "vegandelight:applesauce": {
+      "fruits": 0.04,
+      "sugars": 0.16
+    },
+    "vegandelight:applesauce_bucket": {
+      "group": 0.05
+    }
+  }
+}

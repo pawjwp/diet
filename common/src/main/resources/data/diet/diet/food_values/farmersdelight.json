@@ -1,0 +1,398 @@
+{
+  "replace": false,
+  "values": {
+    "farmersdelight:cabbage": {
+      "fruits": 0.08
+    },
+    "farmersdelight:tomato": {
+      "fruits": 0.01,
+      "vegetables": 0.02
+    },
+    "farmersdelight:onion": {
+      "vegetables": 0.03
+    },
+    "farmersdelight:rice_panicle": {
+      "grains": 0.03
+    },
+    "farmersdelight:rice": {
+      "grains": 0.03
+    },
+    "farmersdelight:fried_egg": {
+      "proteins": 0.04
+    },
+    "farmersdelight:milk_bottle": {
+      "proteins": 0.02
+    },
+    "farmersdelight:hot_cocoa": {
+      "proteins": 0.05,
+      "sugars": 0.18
+    },
+    "farmersdelight:apple_cider": {
+      "fruits": 0.06,
+      "sugars": 0.16
+    },
+    "farmersdelight:melon_juice": {
+      "fruits": 0.06,
+      "sugars": 0.16
+    },
+    "farmersdelight:tomato_sauce": {
+      "fruits": 0.2,
+      "vegetables": 0.04
+    },
+    "farmersdelight:wheat_dough": {
+      "grains": 0.03
+    },
+    "farmersdelight:raw_pasta": {
+      "grains": 0.03
+    },
+    "farmersdelight:pumpkin_slice": {
+      "vegetables": 0.02
+    },
+    "farmersdelight:cabbage_leaf": {
+      "vegetables": 0.02
+    },
+    "farmersdelight:minced_beef": {
+      "vegetables": 0.03
+    },
+    "farmersdelight:beef_patty": {
+      "proteins": 0.06
+    },
+    "farmersdelight:chicken_cuts": {
+      "proteins": 0.02
+    },
+    "farmersdelight:cooked_chicken_cuts": {
+      "proteins": 0.045
+    },
+    "farmersdelight:bacon": {
+      "proteins": 0.03
+    },
+    "farmersdelight:cooked_bacon": {
+      "proteins": 0.06
+    },
+    "farmersdelight:cod_slice": {
+      "proteins": 0.015
+    },
+    "farmersdelight:cooked_cod_slice": {
+      "proteins": 0.035
+    },
+    "farmersdelight:salmon_slice": {
+      "proteins": 0.02
+    },
+    "farmersdelight:cooked_salmon_slice": {
+      "proteins": 0.045
+    },
+    "farmersdelight:mutton_chops": {
+      "proteins": 0.02
+    },
+    "farmersdelight:cooked_mutton_chops": {
+      "proteins": 0.045
+    },
+    "farmersdelight:ham": {
+      "proteins": 0.075
+    },
+    "farmersdelight:smoked_ham": {
+      "proteins": 0.15
+    },
+    "farmersdelight:pie_crust": {
+      "grains": 0.18,
+      "proteins": 0.03
+    },
+    "farmersdelight:apple_pie": {
+      "fruits": 0.025,
+      "grains": 0.09,
+      "proteins": 0.005,
+      "sugars": 0.08
+    },
+    "farmersdelight:sweet_berry_cheesecake": {
+      "fruits": 0.025,
+      "grains": 0.035,
+      "proteins": 0.02
+    },
+    "farmersdelight:chocolate_pie": {
+      "grains": 0.045,
+      "proteins": 0.035,
+      "sugars": 0.085
+    },
+    "farmersdelight:cake_slice": {
+      "grains": 0.025,
+      "proteins": 0.015,
+      "sugars": 0.045
+    },
+    "farmersdelight:apple_pie_slice": {
+      "fruits": 0.025,
+      "grains": 0.09,
+      "proteins": 0.005,
+      "sugars": 0.08
+    },
+    "farmersdelight:sweet_berry_cheesecake_slice": {
+      "fruits": 0.025,
+      "grains": 0.035,
+      "proteins": 0.02
+    },
+    "farmersdelight:chocolate_pie_slice": {
+      "grains": 0.045,
+      "proteins": 0.03,
+      "sugars": 0.08
+    },
+    "farmersdelight:pumpkin_pie_slice": {
+      "grains": 0.01,
+      "proteins": 0.01,
+      "sugars": 0.04,
+      "vegetables": 0.02
+    },
+    "farmersdelight:sweet_berry_cookie": {
+      "fruits": 0.005,
+      "grains": 0.015
+    },
+    "farmersdelight:honey_cookie": {
+      "grains": 0.015,
+      "sugars": 0.02
+    },
+    "farmersdelight:melon_popsicle": {
+      "fruits": 0.06
+    },
+    "farmersdelight:glow_berry_custard": {
+      "fruits": 0.015,
+      "proteins": 0.06,
+      "sugars": 0.16
+    },
+    "farmersdelight:fruit_salad": {
+      "fruits": 0.15,
+      "vegetables": 0.02
+    },
+    "farmersdelight:mixed_salad": {
+      "fruits": 0.01,
+      "vegetables": 0.15
+    },
+    "farmersdelight:nether_salad": {
+      "vegetables": 0.04
+    },
+    "farmersdelight:barbecue_stick": {
+      "fruits": 0.01,
+      "proteins": 0.05,
+      "vegetables": 0.05
+    },
+    "farmersdelight:egg_sandwich": {
+      "grains": 0.09,
+      "proteins": 0.08
+    },
+    "farmersdelight:chicken_sandwich": {
+      "grains": 0.09,
+      "proteins": 0.05,
+      "vegetables": 0.05
+    },
+    "farmersdelight:hamburger": {
+      "fruits": 0.01,
+      "grains": 0.09,
+      "proteins": 0.06,
+      "vegetables": 0.07
+    },
+    "farmersdelight:bacon_sandwich": {
+      "fruits": 0.01,
+      "grains": 0.09,
+      "proteins": 0.06,
+      "vegetables": 0.04
+    },
+    "farmersdelight:mutton_wrap": {
+      "grains": 0.09,
+      "proteins": 0.05,
+      "vegetables": 0.05
+    },
+    "farmersdelight:dumplings": {
+      "grains": 0.025,
+      "proteins": 0.02,
+      "vegetables": 0.025
+    },
+    "farmersdelight:stuffed_potato": {
+      "grains": 0.02,
+      "proteins": 0.09,
+      "vegetables": 0.03
+    },
+    "farmersdelight:cabbage_rolls": {
+      "proteins": 0.01,
+      "vegetables": 0.03
+    },
+    "farmersdelight:salmon_roll": {
+      "grains": 0.02,
+      "proteins": 0.035
+    },
+    "farmersdelight:cod_roll": {
+      "grains": 0.02,
+      "proteins": 0.025
+    },
+    "farmersdelight:kelp_roll": {
+      "grains": 0.08,
+      "vegetables": 0.06
+    },
+    "farmersdelight:kelp_roll_slice": {
+      "grains": 0.025,
+      "vegetables": 0.02
+    },
+    "farmersdelight:cooked_rice": {
+      "grains": 0.04
+    },
+    "farmersdelight:bone_broth": {
+      "fruits": 0.005,
+      "proteins": 0.03,
+      "vegetables": 0.015
+    },
+    "farmersdelight:beef_stew": {
+      "grains": 0.01,
+      "proteins": 0.06,
+      "vegetables": 0.05
+    },
+    "farmersdelight:chicken_soup": {
+      "proteins": 0.05,
+      "vegetables": 0.08
+    },
+    "farmersdelight:vegetable_soup": {
+      "grains": 0.01,
+      "vegetables": 0.12
+    },
+    "farmersdelight:fish_stew": {
+      "fruits": 0.02,
+      "proteins": 0.05,
+      "vegetables": 0.07
+    },
+    "farmersdelight:fried_rice": {
+      "grains": 0.04,
+      "proteins": 0.03,
+      "vegetables": 0.06
+    },
+    "farmersdelight:pumpkin_soup": {
+      "proteins": 0.15,
+      "vegetables": 0.04
+    },
+    "farmersdelight:baked_cod_stew": {
+      "fruits": 0.01,
+      "grains": 0.01,
+      "proteins": 0.07,
+      "vegetables": 0.04
+    },
+    "farmersdelight:noodle_soup": {
+      "grains": 0.06,
+      "proteins": 0.09,
+      "vegetables": 0.01
+    },
+    "farmersdelight:onion_soup": {
+      "grains": 0.03,
+      "proteins": 0.03,
+      "vegetables": 0.07
+    },
+    "farmersdelight:bacon_and_eggs": {
+      "proteins": 0.2
+    },
+    "farmersdelight:pasta_with_meatballs": {
+      "fruits": 0.02,
+      "grains": 0.06,
+      "proteins": 0.06,
+      "vegetables": 0.04
+    },
+    "farmersdelight:pasta_with_mutton_chop": {
+      "fruits": 0.02,
+      "grains": 0.06,
+      "proteins": 0.05,
+      "vegetables": 0.04
+    },
+    "farmersdelight:mushroom_rice": {
+      "grains": 0.04,
+      "vegetables": 0.07
+    },
+    "farmersdelight:roasted_mutton_chops": {
+      "fruits": 0.01,
+      "grains": 0.04,
+      "proteins": 0.05,
+      "vegetables": 0.05
+    },
+    "farmersdelight:vegetable_noodles": {
+      "grains": 0.06,
+      "vegetables": 0.1
+    },
+    "farmersdelight:steak_and_potatoes": {
+      "grains": 0.05,
+      "proteins": 0.12,
+      "vegetables": 0.05
+    },
+    "farmersdelight:ratatouille": {
+      "fruits": 0.01,
+      "vegetables": 0.11
+    },
+    "farmersdelight:squid_ink_pasta": {
+      "fruits": 0.01,
+      "grains": 0.06,
+      "proteins": 0.06,
+      "vegetables": 0.02
+    },
+    "farmersdelight:grilled_salmon": {
+      "fruits": 0.015,
+      "proteins": 0.05,
+      "vegetables": 0.05
+    },
+    "farmersdelight:roast_chicken_block": {
+      "grains": 0.11,
+      "proteins": 0.12,
+      "vegetables": 0.09
+    },
+    "farmersdelight:roast_chicken": {
+      "grains": 0.025,
+      "proteins": 0.03,
+      "vegetables": 0.02
+    },
+    "farmersdelight:stuffed_pumpkin_block": {
+      "fruits": 0.02,
+      "grains": 0.06,
+      "vegetables": 0.12
+    },
+    "farmersdelight:stuffed_pumpkin": {
+      "fruits": 0.005,
+      "grains": 0.015,
+      "vegetables": 0.03
+    },
+    "farmersdelight:honey_glazed_ham_block": {
+      "fruits": 0.06,
+      "grains": 0.08,
+      "proteins": 0.15,
+      "sugars": 0.16
+    },
+    "farmersdelight:honey_glazed_ham": {
+      "fruits": 0.015,
+      "grains": 0.02,
+      "proteins": 0.04,
+      "sugars": 0.04
+    },
+    "farmersdelight:shepherds_pie_block": {
+      "grains": 0.02,
+      "proteins": 0.17,
+      "vegetables": 0.1
+    },
+    "farmersdelight:shepherds_pie": {
+      "grains": 0.005,
+      "proteins": 0.045,
+      "vegetables": 0.025
+    },
+    "farmersdelight:gleaming_salad_block": {
+      "fruits": 0.04,
+      "sugars": 0.16,
+      "vegetables": 0.17
+    },
+    "farmersdelight:gleaming_salad": {
+      "fruits": 0.01,
+      "sugars": 0.04,
+      "vegetables": 0.05
+    },
+    "farmersdelight:rice_roll_medley_block": {
+      "grains": 0.18,
+      "proteins": 0.16,
+      "vegetables": 0.06
+    },
+    "farmersdelight:dog_food": {
+      "proteins": 0.08,
+      "grains": 0.04
+    },
+    "farmersdelight:horse_feed": {
+      "fruits": 0.06,
+      "grains": 0.15,
+      "vegetables": 0.04
+    }
+  }
+}

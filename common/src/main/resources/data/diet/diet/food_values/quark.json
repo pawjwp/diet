@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": {
+    "quark:ancient_fruit": {
+      "fruits": 0.05
+    },
+    "quark:crab_leg": {
+      "proteins": 0.02
+    },
+    "quark:cooked_crab_leg": {
+      "proteins": 0.05
+    }
+  }
+}

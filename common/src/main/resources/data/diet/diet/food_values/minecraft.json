@@ -1,0 +1,143 @@
+{
+  "replace": false,
+  "values": {
+    "minecraft:glow_berries": {
+      "fruits": 0.015
+    },
+    "minecraft:sweet_berries": {
+      "fruits": 0.015
+    },
+    "minecraft:apple": {
+      "fruits": 0.03
+    },
+    "minecraft:golden_apple": {
+      "fruits": 0.04
+    },
+    "minecraft:enchanted_golden_apple": {
+      "fruits": 0.04
+    },
+    "minecraft:melon_slice": {
+      "fruits": 0.015
+    },
+    "minecraft:chorus_fruit": {
+      "fruits": 0.03
+    },
+    "minecraft:carrot": {
+      "vegetables": 0.03
+    },
+    "minecraft:golden_carrot": {
+      "vegetables": 0.04
+    },
+    "minecraft:potato": {
+      "grains": 0.01,
+      "vegetables": 0.02
+    },
+    "minecraft:baked_potato": {
+      "grains": 0.02,
+      "vegetables": 0.03
+    },
+    "minecraft:poisonous_potato": {
+      "vegetables": 0.01
+    },
+    "minecraft:beetroot": {
+      "vegetables": 0.03
+    },
+    "minecraft:dried_kelp": {
+      "vegetables": 0.01
+    },
+    "minecraft:beef": {
+      "proteins": 0.06
+    },
+    "minecraft:cooked_beef": {
+      "proteins": 0.12
+    },
+    "minecraft:porkchop": {
+      "proteins": 0.06
+    },
+    "minecraft:cooked_porkchop": {
+      "proteins": 0.12
+    },
+    "minecraft:mutton": {
+      "proteins": 0.045
+    },
+    "minecraft:cooked_mutton": {
+      "proteins": 0.09
+    },
+    "minecraft:chicken": {
+      "proteins": 0.045
+    },
+    "minecraft:cooked_chicken": {
+      "proteins": 0.09
+    },
+    "minecraft:rabbit": {
+      "proteins": 0.035
+    },
+    "minecraft:cooked_rabbit": {
+      "proteins": 0.07
+    },
+    "minecraft:cod": {
+      "proteins": 0.035
+    },
+    "minecraft:cooked_cod": {
+      "proteins": 0.07
+    },
+    "minecraft:salmon": {
+      "proteins": 0.045
+    },
+    "minecraft:cooked_salmon": {
+      "proteins": 0.09
+    },
+    "minecraft:tropical_fish": {
+      "proteins": 0.025
+    },
+    "minecraft:pufferfish": {
+      "proteins": 0.01
+    },
+    "minecraft:bread": {
+      "grains": 0.09
+    },
+    "minecraft:cookie": {
+      "grains": 0.015,
+      "sugars": 0.01
+    },
+    "minecraft:cake": {
+      "grains": 0.025,
+      "proteins": 0.015,
+      "sugars": 0.045
+    },
+    "minecraft:pumpkin_pie": {
+      "proteins": 0.03,
+      "sugars": 0.16,
+      "vegetables": 0.08
+    },
+    "minecraft:rotten_flesh": {
+      "proteins": 0.02
+    },
+    "minecraft:spider_eye": {
+      "proteins": 0.03
+    },
+    "minecraft:mushroom_stew": {
+      "vegetables": 0.04
+    },
+    "minecraft:beetroot_soup": {
+      "vegetables": 0.09
+    },
+    "minecraft:rabbit_stew": {
+      "grains": 0.02,
+      "proteins": 0.07,
+      "vegetables": 0.08
+    },
+    "minecraft:suspicious_stew": {
+      "vegetables": 0.04
+    },
+    "minecraft:honey_bottle": {
+      "sugars": 0.16
+    },
+    "minecraft:popped_chorus_fruit": {
+      "fruits": 0.03
+    },
+    "minecraft:sugar": {
+      "sugars": 0.16
+    }
+  }
+}
