@@ -27,9 +27,13 @@ import com.google.gson.JsonParseException;
 import com.illusivesoulworks.diet.DietConstants;
 import com.illusivesoulworks.diet.api.type.IDietAttribute;
 import com.illusivesoulworks.diet.api.type.IDietCondition;
+import com.illusivesoulworks.diet.api.type.IDietNotification;
 import com.illusivesoulworks.diet.api.type.IDietStatusEffect;
 import com.illusivesoulworks.diet.api.type.IDietSuite;
+import com.illusivesoulworks.diet.api.type.NotificationFrequency;
+import com.illusivesoulworks.diet.api.type.NotificationTrigger;
 import com.illusivesoulworks.diet.common.data.effect.DietEffect;
+import com.illusivesoulworks.diet.common.data.effect.DietNotification;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.platform.Services;
 import java.util.ArrayList;
@@ -150,6 +154,7 @@ public class DietSuites extends SimpleJsonResourceReloadListener {
       DietGroups.SERVER.getGroup(group.getAsString()).ifPresent(builder::group);
     }
     JsonArray effects = GsonHelper.getAsJsonArray(topElement, "effects", empty);
+    Set<String> seenNotificationIds = new HashSet<>();
 
     for (JsonElement effect : effects) {
       JsonObject effectObject = effect.getAsJsonObject();
@@ -161,8 +166,10 @@ public class DietSuites extends SimpleJsonResourceReloadListener {
         throw new IllegalArgumentException("Conditions cannot be empty!");
       }
 
-      if (attributes.size() == 0 && statusEffects.size() == 0) {
-        throw new IllegalArgumentException("Both attributes and status_effects cannot be empty!");
+      if (attributes.size() == 0 && statusEffects.size() == 0
+          && !effectObject.has("notification")) {
+        throw new IllegalArgumentException(
+            "Effect must declare at least one of attributes, status_effects, or notification!");
       }
       List<IDietCondition> finalConditions = new ArrayList<>();
 
@@ -220,9 +227,49 @@ public class DietSuites extends SimpleJsonResourceReloadListener {
       uuidSuffix++;
       String qualityHex = GsonHelper.getAsString(effectObject, "quality", "#FFFFFF");
       int quality = parseHexColor(qualityHex);
+      IDietNotification notification = parseNotification(effectObject, seenNotificationIds);
       builder.effect(
-          new DietEffect(uuid, finalAttributes, finalStatusEffects, finalConditions, quality));
+          new DietEffect(uuid, finalAttributes, finalStatusEffects, finalConditions, quality,
+              notification));
     }
+  }
+
+  private static IDietNotification parseNotification(JsonObject effectObject,
+                                                     Set<String> seenNotificationIds) {
+    if (!effectObject.has("notification")) {
+      return null;
+    }
+    JsonObject n = GsonHelper.getAsJsonObject(effectObject, "notification");
+
+    if (!n.has("notification_id")) {
+      DietConstants.LOG.warn("Notification block missing required notification_id; skipping");
+      return null;
+    }
+
+    if (!n.has("message")) {
+      DietConstants.LOG.warn("Notification block missing required message; skipping");
+      return null;
+    }
+    String id = GsonHelper.getAsString(n, "notification_id");
+
+    if (!seenNotificationIds.add(id)) {
+      DietConstants.LOG.warn("Duplicate notification_id '{}' in suite; skipping", id);
+      return null;
+    }
+    String message = GsonHelper.getAsString(n, "message");
+    Set<String> sets = new HashSet<>();
+
+    if (n.has("notification_sets")) {
+      for (JsonElement el : GsonHelper.getAsJsonArray(n, "notification_sets")) {
+        sets.add(el.getAsString());
+      }
+    }
+    NotificationTrigger trigger = NotificationTrigger.findOrDefault(
+        GsonHelper.getAsString(n, "trigger", "enter"), NotificationTrigger.ENTER);
+    NotificationFrequency defaultFrequency = n.has("default_frequency")
+        ? NotificationFrequency.findOrDefault(GsonHelper.getAsString(n, "default_frequency"), null)
+        : null;
+    return new DietNotification(id, sets, message, trigger, defaultFrequency);
   }
 
   private static int parseHexColor(String hex) {

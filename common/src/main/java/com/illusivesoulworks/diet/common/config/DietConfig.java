@@ -18,6 +18,7 @@
 package com.illusivesoulworks.diet.common.config;
 
 import com.illusivesoulworks.diet.DietConstants;
+import com.illusivesoulworks.diet.api.type.NotificationFrequency;
 import com.illusivesoulworks.diet.platform.Services;
 import com.illusivesoulworks.spectrelib.config.SpectreConfigSpec;
 import java.util.ArrayList;
@@ -98,6 +99,9 @@ public class DietConfig {
     public final SpectreConfigSpec.BooleanValue generateGroupsForEmptyItems;
     public final SpectreConfigSpec.BooleanValue enableDataFoodValues;
 
+    public final SpectreConfigSpec.BooleanValue notificationsEnabled;
+    public final SpectreConfigSpec.EnumValue<NotificationFrequency> notificationsDefaultFrequency;
+
     public Server(SpectreConfigSpec.Builder builder) {
       deathPenaltyMin =
           builder.comment("The minimum percentage that diet groups can be reduced to upon death.")
@@ -150,6 +154,21 @@ public class DietConfig {
               "If enabled, food group tooltips are hidden until player has eaten that type of item.")
           .translation(CONFIG_PREFIX + "hideTooltipsUntilEaten")
           .define("hideTooltipsUntilEaten", false);
+
+      notificationsEnabled = builder.comment(
+              "If enabled, the diet suite notification system is active. If disabled, no"
+                  + " notifications fire and mute buttons in chat are skipped.")
+          .translation(CONFIG_PREFIX + "notificationsEnabled")
+          .define("notificationsEnabled", true);
+
+      notificationsDefaultFrequency = builder
+          .comment("""
+              Default frequency used when a suite's notification block doesn't specify default_frequency.
+              ALWAYS = fire on every matching edge
+              ONCE = fire on the next matching edge then auto-mute
+              NEVER = never fire""")
+          .translation(CONFIG_PREFIX + "notificationsDefaultFrequency")
+          .defineEnum("notificationsDefaultFrequency", NotificationFrequency.ALWAYS);
     }
 
     private final Map<Item, Float> overrideMap = new HashMap<>();

@@ -18,7 +18,12 @@
 package com.illusivesoulworks.diet.common.command;
 
 import com.illusivesoulworks.diet.DietConstants;
+import com.illusivesoulworks.diet.api.type.IDietEffect;
 import com.illusivesoulworks.diet.api.type.IDietGroup;
+import com.illusivesoulworks.diet.api.type.IDietNotification;
+import com.illusivesoulworks.diet.api.type.NotificationFrequency;
+import com.illusivesoulworks.diet.common.config.DietConfig;
+import com.illusivesoulworks.diet.common.data.notification.DietNotificationDispatcher;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.platform.Services;
 import com.mojang.brigadier.Command;
@@ -26,6 +31,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import java.util.Locale;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -37,18 +43,20 @@ import net.minecraft.world.entity.player.Player;
 
 public class DietCommand {
 
+  private static final int OP_PERMISSION_LEVEL = 2;
+
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-    final int opPermissionLevel = 2;
-    LiteralArgumentBuilder<CommandSourceStack> dietCommand =
-        Commands.literal("diet").requires(player -> player.hasPermission(opPermissionLevel));
+    LiteralArgumentBuilder<CommandSourceStack> dietCommand = Commands.literal("diet");
 
     dietCommand.then(Commands.literal("get")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .then(Commands.argument("group", DietGroupArgument.group())
                 .executes(ctx -> get(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
                     DietGroupArgument.getGroup(ctx, "group"))))));
 
     dietCommand.then(Commands.literal("set")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .then(Commands.argument("group", DietGroupArgument.group())
                 .then(Commands.argument("value", FloatArgumentType.floatArg(0.0f, 1.0f))
@@ -57,6 +65,7 @@ public class DietCommand {
                         DietGroupArgument.getGroup(ctx, "group")))))));
 
     dietCommand.then(Commands.literal("add")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .then(Commands.argument("group", DietGroupArgument.group())
                 .then(Commands.argument("value", FloatArgumentType.floatArg(0.0f, 1.0f))
@@ -66,6 +75,7 @@ public class DietCommand {
                             DietGroupArgument.getGroup(ctx, "group")))))));
 
     dietCommand.then(Commands.literal("subtract")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .then(Commands.argument("group", DietGroupArgument.group())
                 .then(Commands.argument("value", FloatArgumentType.floatArg(0.0f, 1.0f))
@@ -75,25 +85,30 @@ public class DietCommand {
                             DietGroupArgument.getGroup(ctx, "group")))))));
 
     dietCommand.then(Commands.literal("reset")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .executes(ctx -> reset(ctx.getSource(), EntityArgument.getPlayer(ctx, "player")))));
 
     dietCommand.then(Commands.literal("pause")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .executes(
                 ctx -> active(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"), false))));
 
     dietCommand.then(Commands.literal("resume")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .executes(
                 ctx -> active(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"), true))));
 
     dietCommand.then(Commands.literal("clear")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .executes(ctx -> clear(ctx.getSource(), EntityArgument.getPlayer(ctx, "player")))));
 
-    LiteralArgumentBuilder<CommandSourceStack> exportArg =
-        Commands.literal("export").executes(ctx -> export(ctx.getSource(), DietCsv.ExportMode.ALL));
+    LiteralArgumentBuilder<CommandSourceStack> exportArg = Commands.literal("export")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
+        .executes(ctx -> export(ctx.getSource(), DietCsv.ExportMode.ALL));
 
     exportArg.then(Commands.literal("group").then(
         Commands.argument("group", DietGroupArgument.group()).executes(
@@ -112,7 +127,64 @@ public class DietCommand {
 
     dietCommand.then(exportArg);
 
+    dietCommand.then(Commands.literal("notify")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
+        .then(Commands.argument("player", EntityArgument.player())
+            .then(Commands.argument("notification_id", DietNotificationIdArgument.id())
+                .suggests(DietNotificationIdArgument.SUGGESTIONS)
+                .executes(ctx -> notifyTest(ctx.getSource(),
+                    EntityArgument.getPlayer(ctx, "player"),
+                    DietNotificationIdArgument.get(ctx, "notification_id"))))));
+
+    dietCommand.then(buildNotificationsTree());
+
     dispatcher.register(dietCommand);
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> buildNotificationsTree() {
+    LiteralArgumentBuilder<CommandSourceStack> notifications = Commands.literal("notifications");
+
+    notifications.then(Commands.literal("message")
+        .then(Commands.argument("notification_id", DietNotificationIdArgument.id())
+            .suggests(DietNotificationIdArgument.SUGGESTIONS)
+            .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
+                .executes(ctx -> setNotificationFrequency(ctx.getSource(),
+                    DietNotificationIdArgument.get(ctx, "notification_id"),
+                    NotificationFrequencyArgument.get(ctx, "frequency"))))));
+
+    notifications.then(Commands.literal("group")
+        .then(Commands.argument("group", DietGroupArgument.group())
+            .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
+                .executes(ctx -> setGroup(ctx.getSource(),
+                    DietGroupArgument.getGroup(ctx, "group"),
+                    NotificationFrequencyArgument.get(ctx, "frequency"))))));
+
+    notifications.then(Commands.literal("set")
+        .then(Commands.argument("set_id", DietNotificationSetArgument.set())
+            .suggests(DietNotificationSetArgument.SUGGESTIONS)
+            .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
+                .executes(ctx -> setSet(ctx.getSource(),
+                    DietNotificationSetArgument.get(ctx, "set_id"),
+                    NotificationFrequencyArgument.get(ctx, "frequency"))))));
+
+    notifications.then(Commands.literal("all")
+        .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
+            .executes(ctx -> setAll(ctx.getSource(),
+                NotificationFrequencyArgument.get(ctx, "frequency")))));
+
+    notifications.then(Commands.literal("list")
+        .executes(ctx -> list(ctx.getSource())));
+
+    notifications.then(Commands.literal("reset")
+        .executes(ctx -> resetOverrides(ctx.getSource())));
+
+    notifications.then(Commands.literal("options")
+        .then(Commands.argument("notification_id", DietNotificationIdArgument.id())
+            .suggests(DietNotificationIdArgument.SUGGESTIONS)
+            .executes(ctx -> options(ctx.getSource(),
+                DietNotificationIdArgument.get(ctx, "notification_id")))));
+
+    return notifications;
   }
 
   private static int get(CommandSourceStack sender, ServerPlayer player, IDietGroup group) {
@@ -242,5 +314,173 @@ public class DietCommand {
           true);
     }
     return Command.SINGLE_SUCCESS;
+  }
+
+  private static int setNotificationFrequency(CommandSourceStack source, String notificationId,
+                                              NotificationFrequency frequency) {
+    ServerPlayer player = playerFrom(source);
+
+    if (player == null) {
+      return 0;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet -> {
+      diet.setNotificationOverride(notificationId, frequency);
+      source.sendSuccess(() -> Component.translatable(
+          "commands.diet.notifications.message.success",
+          notificationId, freqLabel(frequency)), false);
+    });
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int setGroup(CommandSourceStack source, IDietGroup group,
+                              NotificationFrequency frequency) {
+    ServerPlayer player = playerFrom(source);
+
+    if (player == null) {
+      return 0;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet -> {
+      int count = DietNotificationDispatcher.applyToGroup(diet, group.getName(), frequency);
+      source.sendSuccess(() -> Component.translatable(
+          "commands.diet.notifications.group.success",
+          DietNotificationDispatcher.groupLabel(group.getName()),
+          freqLabel(frequency), count), false);
+    });
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int setSet(CommandSourceStack source, String setId,
+                            NotificationFrequency frequency) {
+    ServerPlayer player = playerFrom(source);
+
+    if (player == null) {
+      return 0;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet -> {
+      int count = DietNotificationDispatcher.applyToSet(diet, setId, frequency);
+      source.sendSuccess(() -> Component.translatable(
+          "commands.diet.notifications.set.success",
+          DietNotificationDispatcher.setLabel(setId), freqLabel(frequency), count), false);
+    });
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int setAll(CommandSourceStack source, NotificationFrequency frequency) {
+    ServerPlayer player = playerFrom(source);
+
+    if (player == null) {
+      return 0;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet -> {
+      int count = DietNotificationDispatcher.applyToAll(diet, frequency);
+      source.sendSuccess(() -> Component.translatable(
+          "commands.diet.notifications.all.success",
+          freqLabel(frequency), count), false);
+    });
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int list(CommandSourceStack source) {
+    ServerPlayer player = playerFrom(source);
+
+    if (player == null) {
+      return 0;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet ->
+        DietSuites.getSuite(player.level(), diet.getSuite()).ifPresent(suite -> {
+          source.sendSuccess(() -> Component.translatable(
+              "commands.diet.notifications.list.header"), false);
+          NotificationFrequency configDefault =
+              DietConfig.SERVER.notificationsDefaultFrequency.get();
+
+          for (IDietEffect effect : suite.getEffects()) {
+            IDietNotification n = effect.getNotification().orElse(null);
+
+            if (n == null) {
+              continue;
+            }
+            NotificationFrequency override = diet.getNotificationOverrides().get(n.getId());
+            NotificationFrequency suiteDefault = n.getDefaultFrequency().orElse(configDefault);
+            NotificationFrequency effective =
+                DietNotificationDispatcher.resolveEffective(diet, n);
+            Component overrideLabel = override == null
+                ? Component.translatable("commands.diet.notifications.list.no_override")
+                : freqLabel(override);
+            source.sendSuccess(() -> Component.translatable(
+                "commands.diet.notifications.list.entry",
+                DietNotificationDispatcher.notificationLabel(n),
+                freqLabel(suiteDefault), overrideLabel, freqLabel(effective)), false);
+          }
+        }));
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int resetOverrides(CommandSourceStack source) {
+    ServerPlayer player = playerFrom(source);
+
+    if (player == null) {
+      return 0;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet -> {
+      diet.clearNotificationOverrides();
+      source.sendSuccess(() -> Component.translatable(
+          "commands.diet.notifications.reset.success"), false);
+    });
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int options(CommandSourceStack source, String notificationId) {
+    ServerPlayer player = playerFrom(source);
+
+    if (player == null) {
+      return 0;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet ->
+        DietSuites.getSuite(player.level(), diet.getSuite()).ifPresent(suite -> {
+          for (IDietEffect effect : suite.getEffects()) {
+            IDietNotification n = effect.getNotification().orElse(null);
+
+            if (n != null && n.getId().equals(notificationId)) {
+              player.sendSystemMessage(
+                  DietNotificationDispatcher.buildOptionsMenu(effect, n));
+              return;
+            }
+          }
+        }));
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int notifyTest(CommandSourceStack source, ServerPlayer player,
+                                String notificationId) {
+    Services.CAPABILITY.get(player).ifPresent(diet ->
+        DietSuites.getSuite(player.level(), diet.getSuite()).ifPresent(suite -> {
+          for (IDietEffect effect : suite.getEffects()) {
+            IDietNotification n = effect.getNotification().orElse(null);
+
+            if (n != null && n.getId().equals(notificationId)) {
+              DietNotificationDispatcher.forceFire(player, effect, n);
+              source.sendSuccess(() -> Component.translatable(
+                  "commands.diet.notify.success", notificationId,
+                  player.getName()), true);
+              return;
+            }
+          }
+        }));
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static ServerPlayer playerFrom(CommandSourceStack source) {
+    try {
+      return source.getPlayerOrException();
+    } catch (Exception e) {
+      source.sendFailure(Component.translatable(
+          "commands.diet.notifications.no_player"));
+      return null;
+    }
+  }
+
+  private static Component freqLabel(NotificationFrequency frequency) {
+    return Component.translatable(
+        "commands.diet.notifications.frequency." + frequency.name().toLowerCase(Locale.ROOT));
   }
 }

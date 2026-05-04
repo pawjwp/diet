@@ -26,6 +26,13 @@
           "amount": 0.1
         }
       ],
+      "notification": {
+        "notification_id": "all_80_100",
+        "notification_sets": ["all_positive", "positive"],
+        "message": "notification.diet.all_80_100",
+        "trigger": "enter",
+        "default_frequency": "once"
+      },
       "conditions": [
         {
           "groups": ["proteins", "fruits", "vegetables", "grains"],
@@ -61,6 +68,13 @@
           "below": 1.0
         }
       ],
+      "notification": {
+        "notification_id": "any_80_100",
+        "notification_sets": ["any_positive", "positive"],
+        "message": "notification.diet.any_80_100",
+        "trigger": "enter",
+        "default_frequency": "once"
+      },
       "quality": "#00FF00"
     },
     {
@@ -85,6 +99,13 @@
           "below": 1.0
         }
       ],
+      "notification": {
+        "notification_id": "sugars_80_100",
+        "notification_sets": ["sugars_negative", "negative"],
+        "message": "notification.diet.sugars_80_100",
+        "trigger": "enter",
+        "default_frequency": "always"
+      },
       "quality": "#FF0000"
     }
   ]

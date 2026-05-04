@@ -17,6 +17,7 @@
 
 package com.illusivesoulworks.diet.api.type;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,4 +79,24 @@ public interface IDietTracker {
   void load(CompoundTag tag);
 
   void copy(Player oldPlayer, boolean wasDeath);
+
+  default Map<String, NotificationFrequency> getNotificationOverrides() {
+    return Collections.emptyMap();
+  }
+
+  default void setNotificationOverride(String notificationId, NotificationFrequency frequency) {
+  }
+
+  default void removeNotificationOverride(String notificationId) {
+  }
+
+  default void clearNotificationOverrides() {
+  }
+
+  default Set<String> getLastMatchedNotifications() {
+    return Collections.emptySet();
+  }
+
+  default void setLastMatchedNotifications(Set<String> ids) {
+  }
 }

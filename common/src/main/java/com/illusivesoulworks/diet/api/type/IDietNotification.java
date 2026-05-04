@@ -17,26 +17,21 @@
 
 package com.illusivesoulworks.diet.api.type;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 
-public interface IDietEffect {
+public interface IDietNotification {
 
-  List<IDietCondition> getConditions();
+  String getId();
 
-  List<IDietAttribute> getAttributes();
+  Set<String> getSets();
 
-  List<IDietStatusEffect> getStatusEffects();
+  String getMessage();
 
-  UUID getUuid();
+  NotificationTrigger getTrigger();
 
-  int getQuality();
-
-  default Optional<IDietNotification> getNotification() {
-    return Optional.empty();
-  }
+  Optional<NotificationFrequency> getDefaultFrequency();
 
   CompoundTag save();
 }

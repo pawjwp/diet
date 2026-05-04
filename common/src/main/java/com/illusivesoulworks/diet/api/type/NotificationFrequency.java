@@ -17,26 +17,21 @@
 
 package com.illusivesoulworks.diet.api.type;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import net.minecraft.nbt.CompoundTag;
+import java.util.Locale;
 
-public interface IDietEffect {
+public enum NotificationFrequency {
+  ALWAYS,
+  ONCE,
+  NEVER;
 
-  List<IDietCondition> getConditions();
-
-  List<IDietAttribute> getAttributes();
-
-  List<IDietStatusEffect> getStatusEffects();
-
-  UUID getUuid();
-
-  int getQuality();
-
-  default Optional<IDietNotification> getNotification() {
-    return Optional.empty();
+  public static NotificationFrequency findOrDefault(String val, NotificationFrequency def) {
+    if (val == null || val.isEmpty()) {
+      return def;
+    }
+    try {
+      return NotificationFrequency.valueOf(val.toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException e) {
+      return def;
+    }
   }
-
-  CompoundTag save();
 }

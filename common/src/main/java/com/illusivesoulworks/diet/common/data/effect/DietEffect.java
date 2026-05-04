@@ -21,6 +21,7 @@ import com.illusivesoulworks.diet.DietConstants;
 import com.illusivesoulworks.diet.api.type.IDietAttribute;
 import com.illusivesoulworks.diet.api.type.IDietCondition;
 import com.illusivesoulworks.diet.api.type.IDietEffect;
+import com.illusivesoulworks.diet.api.type.IDietNotification;
 import com.illusivesoulworks.diet.api.type.IDietStatusEffect;
 import com.illusivesoulworks.diet.platform.Services;
 import java.util.ArrayList;
@@ -29,8 +30,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -48,15 +51,24 @@ public class DietEffect implements IDietEffect {
   public final List<IDietCondition> conditions;
   public final UUID uuid;
   public final int quality;
+  @Nullable
+  public final IDietNotification notification;
 
   public DietEffect(UUID uuid, List<IDietAttribute> attributes,
                     List<IDietStatusEffect> statusEffects, List<IDietCondition> conditions,
                     int quality) {
+    this(uuid, attributes, statusEffects, conditions, quality, null);
+  }
+
+  public DietEffect(UUID uuid, List<IDietAttribute> attributes,
+                    List<IDietStatusEffect> statusEffects, List<IDietCondition> conditions,
+                    int quality, @Nullable IDietNotification notification) {
     this.attributes = attributes;
     this.statusEffects = statusEffects;
     this.conditions = conditions;
     this.uuid = uuid;
     this.quality = quality;
+    this.notification = notification;
   }
 
   @Override
@@ -85,10 +97,19 @@ public class DietEffect implements IDietEffect {
   }
 
   @Override
+  public Optional<IDietNotification> getNotification() {
+    return Optional.ofNullable(this.notification);
+  }
+
+  @Override
   public CompoundTag save() {
     CompoundTag tag = new CompoundTag();
     tag.putUUID("UUID", this.uuid);
     tag.putInt("Quality", this.quality);
+
+    if (this.notification != null) {
+      tag.put("Notification", this.notification.save());
+    }
     ListTag attributesList = new ListTag();
 
     for (IDietAttribute attribute : this.attributes) {
@@ -113,6 +134,9 @@ public class DietEffect implements IDietEffect {
   public static DietEffect load(CompoundTag tag) {
     UUID uuid = tag.getUUID("UUID");
     int quality = tag.getInt("Quality");
+    IDietNotification notification = tag.contains("Notification", Tag.TAG_COMPOUND)
+        ? DietNotification.load(tag.getCompound("Notification"))
+        : null;
     List<IDietAttribute> attributes = new ArrayList<>();
     ListTag attributesList = tag.getList("Attributes", Tag.TAG_COMPOUND);
 
@@ -139,7 +163,7 @@ public class DietEffect implements IDietEffect {
     for (int i = 0; i < conditionsList.size(); i++) {
       conditions.add(DietCondition.load(conditionsList.getCompound(i)));
     }
-    return new DietEffect(uuid, attributes, statusEffects, conditions, quality);
+    return new DietEffect(uuid, attributes, statusEffects, conditions, quality, notification);
   }
 
   public static class DietAttribute implements IDietAttribute {

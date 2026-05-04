@@ -23,6 +23,9 @@ import com.illusivesoulworks.diet.client.DietKeys;
 import com.illusivesoulworks.diet.common.DietEvents;
 import com.illusivesoulworks.diet.common.command.DietCommand;
 import com.illusivesoulworks.diet.common.command.DietGroupArgument;
+import com.illusivesoulworks.diet.common.command.DietNotificationIdArgument;
+import com.illusivesoulworks.diet.common.command.DietNotificationSetArgument;
+import com.illusivesoulworks.diet.common.command.NotificationFrequencyArgument;
 import com.illusivesoulworks.diet.common.config.DietConfigLoader;
 import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
@@ -90,8 +93,16 @@ public class DietForgeMod {
   private void setup(final FMLCommonSetupEvent evt) {
     DietForgeNetwork.setup();
     IntegrationManager.setup();
-    evt.enqueueWork(() -> ArgumentTypeInfos.registerByClass(DietGroupArgument.class,
-        SingletonArgumentInfo.contextFree(DietGroupArgument::group)));
+    evt.enqueueWork(() -> {
+      ArgumentTypeInfos.registerByClass(DietGroupArgument.class,
+          SingletonArgumentInfo.contextFree(DietGroupArgument::group));
+      ArgumentTypeInfos.registerByClass(DietNotificationIdArgument.class,
+          SingletonArgumentInfo.contextFree(DietNotificationIdArgument::id));
+      ArgumentTypeInfos.registerByClass(DietNotificationSetArgument.class,
+          SingletonArgumentInfo.contextFree(DietNotificationSetArgument::set));
+      ArgumentTypeInfos.registerByClass(NotificationFrequencyArgument.class,
+          SingletonArgumentInfo.contextFree(NotificationFrequencyArgument::frequency));
+    });
   }
 
   private void addReloaders(final AddReloadListenerEvent evt) {

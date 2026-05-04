@@ -1,0 +1,15 @@
+{
+  "notification.diet.id.all_80_100.name": "All Groups High",
+  "notification.diet.id.any_80_100.name": "Any Group High",
+  "notification.diet.id.sugars_80_100.name": "Sugars High",
+
+  "notification.diet.all_80_100": "All core groups high: Your health and defense have improved",
+  "notification.diet.any_80_100": "%s high: Your health and attacks are improved",
+  "notification.diet.sugars_80_100": "%s high: you move faster, but are hungry",
+
+  "notification.diet.set.all_positive.name": "All Positive",
+  "notification.diet.set.any_positive.name": "Any Positive",
+  "notification.diet.set.positive.name": "Positive",
+  "notification.diet.set.sugars_negative.name": "Sugars Negative",
+  "notification.diet.set.negative.name": "Negative"
+}

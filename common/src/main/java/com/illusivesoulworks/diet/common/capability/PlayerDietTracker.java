@@ -20,16 +20,11 @@ package com.illusivesoulworks.diet.common.capability;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.illusivesoulworks.diet.api.DietApi;
-import com.illusivesoulworks.diet.api.type.IDietAttribute;
-import com.illusivesoulworks.diet.api.type.IDietCondition;
-import com.illusivesoulworks.diet.api.type.IDietEffect;
-import com.illusivesoulworks.diet.api.type.IDietGroup;
-import com.illusivesoulworks.diet.api.type.IDietResult;
-import com.illusivesoulworks.diet.api.type.IDietStatusEffect;
-import com.illusivesoulworks.diet.api.type.IDietTracker;
+import com.illusivesoulworks.diet.api.type.*;
 import com.illusivesoulworks.diet.common.config.DietConfig;
 import com.illusivesoulworks.diet.common.data.effect.DietEffect;
 import com.illusivesoulworks.diet.common.data.effect.DietEffectsInfo;
+import com.illusivesoulworks.diet.common.data.notification.DietNotificationDispatcher;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.common.util.DietResult;
 import com.illusivesoulworks.diet.platform.Services;
@@ -65,9 +60,13 @@ public class PlayerDietTracker implements IDietTracker {
   private final Map<String, Float> values = new HashMap<>();
   private final Map<Attribute, Set<UUID>> activeModifiers = new HashMap<>();
   private final Set<Item> eatenFood = new HashSet<>();
+  private final Set<String> lastMatchedNotifications = new HashSet<>();
+  private final Map<String, NotificationFrequency> notificationOverrides = new HashMap<>();
+  private final Map<String, Float> previousValues = new HashMap<>();
 
   private boolean active = true;
   private String suite = "builtin";
+  private boolean reseedNotificationsNextTick = false;
 
   private int prevFood = 0;
   private ItemStack captured = ItemStack.EMPTY;
@@ -213,6 +212,8 @@ public class PlayerDietTracker implements IDietTracker {
     if (!this.suite.equals(name)) {
       this.suite = name;
       this.initSuite();
+      this.lastMatchedNotifications.clear();
+      this.reseedNotificationsNextTick = true;
     }
   }
 
@@ -242,12 +243,99 @@ public class PlayerDietTracker implements IDietTracker {
     return this.player;
   }
 
+  @Override
+  public Map<String, NotificationFrequency> getNotificationOverrides() {
+    return ImmutableMap.copyOf(this.notificationOverrides);
+  }
+
+  @Override
+  public void setNotificationOverride(String notificationId, NotificationFrequency frequency) {
+    this.notificationOverrides.put(notificationId, frequency);
+  }
+
+  @Override
+  public void removeNotificationOverride(String notificationId) {
+    this.notificationOverrides.remove(notificationId);
+  }
+
+  @Override
+  public void clearNotificationOverrides() {
+    this.notificationOverrides.clear();
+  }
+
+  @Override
+  public Set<String> getLastMatchedNotifications() {
+    return Sets.newHashSet(this.lastMatchedNotifications);
+  }
+
+  @Override
+  public void setLastMatchedNotifications(Set<String> ids) {
+    this.lastMatchedNotifications.clear();
+    this.lastMatchedNotifications.addAll(ids);
+  }
+
+  private boolean shouldFireNotification(IDietEffect effect, NotificationTrigger trigger,
+                                         boolean match, boolean was) {
+    Set<String> groups = new HashSet<>();
+
+    for (IDietCondition condition : effect.getConditions()) {
+      groups.addAll(condition.getGroups());
+    }
+    float prevSum = 0f;
+    float currSum = 0f;
+    int valueCount = 0;
+
+    for (String g : groups) {
+      Float curr = this.values.get(g);
+
+      if (curr == null) {
+        continue;
+      }
+      Float prev = this.previousValues.get(g);
+      prevSum += prev == null ? 0f : prev;
+      currSum += curr;
+      valueCount++;
+    }
+    double lowerSum = 0d;
+    double upperSum = 0d;
+    int boundCount = 0;
+
+    for (IDietCondition condition : effect.getConditions()) {
+      lowerSum += condition.getAbove();
+      upperSum += condition.getBelow();
+      boundCount++;
+    }
+    float prevAvg = valueCount == 0 ? 0f : prevSum / valueCount;
+    float currAvg = valueCount == 0 ? 0f : currSum / valueCount;
+    float lowerAvg = boundCount == 0 ? 0f : (float) (lowerSum / boundCount);
+    float upperAvg = boundCount == 0 ? 1f : (float) (upperSum / boundCount);
+    boolean rising = currAvg >= prevAvg;
+
+    if (match != was) {
+      boolean fire = match
+          ? (rising ? trigger.firesOnRiseInto() : trigger.firesOnFallInto())
+          : (rising ? trigger.firesOnRiseOut() : trigger.firesOnFallOut());
+
+      if (fire) {
+        return true;
+      }
+    }
+
+    if (trigger.firesOnRiseThrough() && prevAvg <= lowerAvg && currAvg > lowerAvg) {
+      return true;
+    }
+    return trigger.firesOnFallThrough() && prevAvg >= upperAvg && currAvg < upperAvg;
+  }
+
   private void applyEffects() {
 
     if (Services.EVENT.fireApplyEffectEvent(this.player)) {
       return;
     }
     DietEffectsInfo info = new DietEffectsInfo();
+    Set<String> currentMatches = new HashSet<>();
+    boolean reseed = this.reseedNotificationsNextTick;
+    this.reseedNotificationsNextTick = false;
     DietSuites.getSuite(this.player.level(), this.suite).ifPresent(suite -> {
 
       for (IDietEffect effect : suite.getEffects()) {
@@ -293,8 +381,29 @@ public class PlayerDietTracker implements IDietTracker {
             info.addEffect(instance);
           }
         }
+        IDietNotification notification = effect.getNotification().orElse(null);
+
+        if (notification != null) {
+          String id = notification.getId();
+
+          if (match) {
+            currentMatches.add(id);
+          }
+
+          if (!reseed) {
+            boolean was = this.lastMatchedNotifications.contains(id);
+
+            if (shouldFireNotification(effect, notification.getTrigger(), match, was)) {
+              DietNotificationDispatcher.tryFire(this, effect, notification);
+            }
+          }
+        }
       }
     });
+    this.lastMatchedNotifications.clear();
+    this.lastMatchedNotifications.addAll(currentMatches);
+    this.previousValues.clear();
+    this.previousValues.putAll(this.values);
 
     if (player instanceof ServerPlayer) {
       Services.NETWORK.sendEffectsInfoS2C((ServerPlayer) player, info);
@@ -447,6 +556,18 @@ public class PlayerDietTracker implements IDietTracker {
     }
     tag.put("Eaten", list);
     tag.putBoolean("Active", this.isActive());
+    ListTag matchedList = new ListTag();
+
+    for (String id : this.lastMatchedNotifications) {
+      matchedList.add(StringTag.valueOf(id));
+    }
+    tag.put("LastMatchedNotifications", matchedList);
+    CompoundTag overrides = new CompoundTag();
+
+    for (Map.Entry<String, NotificationFrequency> e : this.notificationOverrides.entrySet()) {
+      overrides.putString(e.getKey(), e.getValue().name());
+    }
+    tag.put("NotificationOverrides", overrides);
   }
 
   @Override
@@ -491,6 +612,23 @@ public class PlayerDietTracker implements IDietTracker {
     this.setModifiers(modifiers);
     this.setValues(groups);
     this.setActive(!tag.contains("Active") || tag.getBoolean("Active"));
+    this.lastMatchedNotifications.clear();
+    ListTag matchedList = tag.getList("LastMatchedNotifications", Tag.TAG_STRING);
+
+    for (int i = 0; i < matchedList.size(); i++) {
+      this.lastMatchedNotifications.add(matchedList.getString(i));
+    }
+    this.notificationOverrides.clear();
+    CompoundTag overrides = tag.getCompound("NotificationOverrides");
+
+    for (String key : overrides.getAllKeys()) {
+      NotificationFrequency f =
+          NotificationFrequency.findOrDefault(overrides.getString(key), null);
+
+      if (f != null) {
+        this.notificationOverrides.put(key, f);
+      }
+    }
   }
 
   @Override

@@ -22,6 +22,9 @@ import com.illusivesoulworks.diet.common.DietEvents;
 import com.illusivesoulworks.diet.common.ModIdArgument;
 import com.illusivesoulworks.diet.common.command.DietCommand;
 import com.illusivesoulworks.diet.common.command.DietGroupArgument;
+import com.illusivesoulworks.diet.common.command.DietNotificationIdArgument;
+import com.illusivesoulworks.diet.common.command.DietNotificationSetArgument;
+import com.illusivesoulworks.diet.common.command.NotificationFrequencyArgument;
 import com.illusivesoulworks.diet.common.component.DietComponents;
 import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
@@ -56,6 +59,15 @@ public class DietFabricMod implements ModInitializer {
         SingletonArgumentInfo.contextFree(ModIdArgument::new));
     ArgumentTypeRegistry.registerArgumentType(DietCommonMod.resource("groups"),
         DietGroupArgument.class, SingletonArgumentInfo.contextFree(DietGroupArgument::group));
+    ArgumentTypeRegistry.registerArgumentType(DietCommonMod.resource("notification_id"),
+        DietNotificationIdArgument.class,
+        SingletonArgumentInfo.contextFree(DietNotificationIdArgument::id));
+    ArgumentTypeRegistry.registerArgumentType(DietCommonMod.resource("notification_set"),
+        DietNotificationSetArgument.class,
+        SingletonArgumentInfo.contextFree(DietNotificationSetArgument::set));
+    ArgumentTypeRegistry.registerArgumentType(DietCommonMod.resource("notification_frequency"),
+        NotificationFrequencyArgument.class,
+        SingletonArgumentInfo.contextFree(NotificationFrequencyArgument::frequency));
     CommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess, environment) -> DietCommand.register(dispatcher));
     ServerLifecycleEvents.SERVER_STARTED.register(DietValueGenerator::reload);
