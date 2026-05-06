@@ -19,6 +19,8 @@ package com.illusivesoulworks.diet.client.screen;
 
 import com.google.common.collect.Lists;
 import com.illusivesoulworks.diet.DietConstants;
+import com.illusivesoulworks.diet.api.type.IDietCondition;
+import com.illusivesoulworks.diet.api.type.IDietEffect;
 import com.illusivesoulworks.diet.api.type.IDietGroup;
 import com.illusivesoulworks.diet.api.type.IDietSuite;
 import com.illusivesoulworks.diet.api.type.QualitySegment;
@@ -198,7 +200,8 @@ public class DietScreen extends Screen {
                 }
                 int xPos = x + 200;
                 int yPos = y + 1;
-                int textColor = showQuality ? getColorAtValue(value, segments, 0xFFFFFF)
+                int textColor = showQuality
+                    ? getColorAtValue(value, suite, group.getName(), 0xFFFFFF)
                     : color.getRGB();
                 guiGraphics.drawString(this.font, percentText, (xPos + 1), yPos, 0, false);
                 guiGraphics.drawString(this.font, percentText, (xPos - 1), yPos, 0, false);
@@ -268,21 +271,49 @@ public class DietScreen extends Screen {
     return false;
   }
 
-  private static int getColorAtValue(float value, List<QualitySegment> segments, int defaultColor) {
-    for (QualitySegment seg : segments) {
+  private static int getColorAtValue(float value, IDietSuite suite, String groupName,
+                                     int defaultColor) {
+    int rSum = 0;
+    int gSum = 0;
+    int bSum = 0;
+    int count = 0;
 
-      if (value >= seg.start() && value <= seg.end()) {
-        return seg.quality();
+    for (IDietEffect effect : suite.getEffects()) {
+      int quality = effect.getQuality();
+
+      if (quality == 0xFFFFFF) {
+        continue;
+      }
+
+      for (IDietCondition condition : effect.getConditions()) {
+
+        if (!condition.getGroups().contains(groupName)) {
+          continue;
+        }
+        float above = (float) condition.getAbove();
+        float below = (float) condition.getBelow();
+
+        if (value >= above && value <= below) {
+          rSum += (quality >> 16) & 0xFF;
+          gSum += (quality >> 8) & 0xFF;
+          bSum += quality & 0xFF;
+          count++;
+        }
       }
     }
-    return defaultColor;
+
+    if (count == 0) {
+      return defaultColor;
+    }
+    int avg = ((rSum / count) << 16) | ((gSum / count) << 8) | (bSum / count);
+    return avg == 0xFFFFFF ? defaultColor : avg;
   }
 
   private static void drawQualitySegments(GuiGraphics g, int barX, int barY, int percent,
                                           List<QualitySegment> segments) {
     for (QualitySegment seg : segments) {
-      int segStart = (int) (seg.start() * 102);
-      int segEnd = (int) (seg.end() * 102);
+      int segStart = seg.start() <= 0.0f ? 0 : (int) Math.round(seg.start() * 100.0f) + 1;
+      int segEnd = seg.end() >= 1.0f ? 102 : (int) Math.round(seg.end() * 100.0f) + 1;
       int segWidth = segEnd - segStart;
 
       if (segWidth <= 0) {
@@ -293,7 +324,8 @@ public class DietScreen extends Screen {
       int b = seg.quality() & 0xFF;
       coloredBlit(g.pose(), barX + segStart, barY, segWidth, 5,
           20 + segStart, 0, segWidth, 5, 256, 256, r, gr, b, 255);
-      int fillEnd = Math.min(segEnd, percent + 1);
+      int fillCap = percent >= 100 ? 102 : percent + 1;
+      int fillEnd = Math.min(segEnd, fillCap);
 
       if (fillEnd > segStart) {
         int fillWidth = fillEnd - segStart;
