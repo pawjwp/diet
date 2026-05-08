@@ -24,6 +24,8 @@ import com.illusivesoulworks.diet.api.type.*;
 import com.illusivesoulworks.diet.common.config.DietConfig;
 import com.illusivesoulworks.diet.common.data.effect.DietEffect;
 import com.illusivesoulworks.diet.common.data.effect.DietEffectsInfo;
+import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
+import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.notification.DietNotificationDispatcher;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.common.util.DietResult;
@@ -33,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -176,6 +179,26 @@ public class PlayerDietTracker implements IDietTracker {
         this.apply(result);
       }
     }
+  }
+
+  @Override
+  public void consumeDrink(ItemStack stack) {
+
+    if (!this.active || Services.EVENT.fireConsumeStackEvent(stack, this.player)) {
+      return;
+    }
+
+    if (!DietConfig.SERVER.enableDataFoodValues.get()) {
+      return;
+    }
+    Set<IDietGroup> available = DietGroups.getGroups(this.player.level());
+    Optional<Map<IDietGroup, Float>> entry = DietFoodValues.SERVER.lookup(stack, available);
+
+    if (entry.isEmpty()) {
+      return;
+    }
+    this.addEaten(stack.getItem());
+    this.apply(new DietResult(entry.get()));
   }
 
   @Override

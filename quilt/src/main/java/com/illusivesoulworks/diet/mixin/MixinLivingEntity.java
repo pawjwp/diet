@@ -22,6 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -60,6 +61,13 @@ public class MixinLivingEntity {
 
       if (food != null) {
         DietComponents.DIET_TRACKER.maybeGet(this).ifPresent(diet -> diet.consume(diet$copy));
+      } else {
+        UseAnim anim = diet$copy.getUseAnimation();
+
+        if (anim == UseAnim.DRINK || anim == UseAnim.EAT) {
+          DietComponents.DIET_TRACKER.maybeGet(this)
+              .ifPresent(diet -> diet.consumeDrink(diet$copy));
+        }
       }
     }
     diet$copy = ItemStack.EMPTY;

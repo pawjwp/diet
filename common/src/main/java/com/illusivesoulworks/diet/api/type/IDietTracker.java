@@ -36,6 +36,9 @@ public interface IDietTracker {
 
   void consume(ItemStack stack);
 
+  default void consumeDrink(ItemStack stack) {
+  }
+
   void consume(ItemStack stack, int healing, float saturationModifier);
 
   void consume(List<ItemStack> stacks, int healing, float saturationModifier);
