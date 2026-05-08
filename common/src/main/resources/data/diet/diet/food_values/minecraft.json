@@ -120,7 +120,7 @@
       "vegetables": 0.04
     },
     "minecraft:beetroot_soup": {
-      "vegetables": 0.09
+      "vegetables": 0.1
     },
     "minecraft:rabbit_stew": {
       "grains": 0.02,
@@ -129,6 +129,9 @@
     },
     "minecraft:suspicious_stew": {
       "vegetables": 0.04
+    },
+    "minecraft:milk_bucket": {
+      "proteins": 0.12
     },
     "minecraft:honey_bottle": {
       "sugars": 0.16

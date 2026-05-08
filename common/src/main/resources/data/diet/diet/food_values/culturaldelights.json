@@ -59,10 +59,10 @@
       "proteins": 0.05
     },
     "culturaldelights:raw_calamari": {
-      "group": 0.025
+      "proteins": 0.025
     },
     "culturaldelights:cooked_calamari": {
-      "group": 0.05
+      "proteins": 0.05
     },
     "culturaldelights:popcorn": {
       "grains": 0.02,

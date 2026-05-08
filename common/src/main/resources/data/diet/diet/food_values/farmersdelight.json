@@ -2,7 +2,7 @@
   "replace": false,
   "values": {
     "farmersdelight:cabbage": {
-      "fruits": 0.08
+      "fruits": 0.04
     },
     "farmersdelight:tomato": {
       "fruits": 0.01,
@@ -36,7 +36,7 @@
       "sugars": 0.16
     },
     "farmersdelight:tomato_sauce": {
-      "fruits": 0.2,
+      "fruits": 0.02,
       "vegetables": 0.04
     },
     "farmersdelight:wheat_dough": {

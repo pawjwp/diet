@@ -2,7 +2,7 @@
   "replace": false,
   "values": {
     "vegandelight:silken_tofu": {
-      "group": 0.05
+      "proteins": 0.05
     },
     "vegandelight:tofu": {
       "proteins": 0.04
@@ -39,15 +39,15 @@
       "vegetables": 0.01
     },
     "vegandelight:cooked_tofish": {
-      "group": 0.025,
+      "proteins": 0.025,
       "vegetables": 0.01
     },
     "vegandelight:smoked_tofish": {
-      "group": 0.025,
+      "proteins": 0.025,
       "vegetables": 0.01
     },
     "vegandelight:cooked_smoked_tofish": {
-      "group": 0.03,
+      "proteins": 0.03,
       "vegetables": 0.01
     },
     "vegandelight:tofish_roll": {
@@ -68,7 +68,7 @@
       "sugars": 0.16
     },
     "vegandelight:applesauce_bucket": {
-      "group": 0.05
+      "fruits": 0.05
     }
   }
 }
