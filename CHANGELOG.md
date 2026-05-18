@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 Prior to version 2.0.0, this project used MCVERSION-MAJORMOD.MAJORAPI.MINOR.PATCH.
 
+## [3.0.2+1.20.1] - 2026.05.18
+This is a bugfix update to fix a problem from the previous major update. See the [3.0 Changelog](https://github.com/pawjwp/diet/blob/1.20.x/CHANGELOG.md#3001201---20260505) for details about the new features.
+### Fixed
+- Fixed a command permission registration issue that stopped clients from joining servers
+
 ## [3.0.1+1.20.1] - 2026.05.07
 This is a minor update to fix a few problems from the previous major update. See the [3.0 Changelog](https://github.com/pawjwp/diet/blob/1.20.x/CHANGELOG.md#3001201---20260505) for details about the new features.
 ### Added
