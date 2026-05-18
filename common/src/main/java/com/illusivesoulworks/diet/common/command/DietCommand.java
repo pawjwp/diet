@@ -23,6 +23,7 @@ import com.illusivesoulworks.diet.api.type.IDietGroup;
 import com.illusivesoulworks.diet.api.type.IDietNotification;
 import com.illusivesoulworks.diet.api.type.NotificationFrequency;
 import com.illusivesoulworks.diet.common.config.DietConfig;
+import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.notification.DietNotificationDispatcher;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.platform.Services;
@@ -31,9 +32,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,44 +51,122 @@ public class DietCommand {
 
   private static final int OP_PERMISSION_LEVEL = 2;
 
+  private static final SuggestionProvider<CommandSourceStack> SUGGEST_GROUPS =
+      (ctx, builder) -> SharedSuggestionProvider.suggest(
+          DietGroups.SERVER.getGroups().stream().map(IDietGroup::getName), builder);
+
+  private static final SuggestionProvider<CommandSourceStack> SUGGEST_NOTIFICATION_IDS =
+      (ctx, builder) -> {
+        ServerPlayer player = ctx.getSource().getPlayer();
+
+        if (player == null) {
+          return builder.buildFuture();
+        }
+        Set<String> ids = new HashSet<>();
+        Services.CAPABILITY.get(player).ifPresent(diet ->
+            DietSuites.getSuite(player.level(), diet.getSuite()).ifPresent(suite -> {
+              for (IDietEffect effect : suite.getEffects()) {
+                IDietNotification n = effect.getNotification().orElse(null);
+
+                if (n != null) {
+                  ids.add(n.getId());
+                }
+              }
+            }));
+        return SharedSuggestionProvider.suggest(ids, builder);
+      };
+
+  private static final SuggestionProvider<CommandSourceStack> SUGGEST_NOTIFICATION_SETS =
+      (ctx, builder) -> {
+        ServerPlayer player = ctx.getSource().getPlayer();
+
+        if (player == null) {
+          return builder.buildFuture();
+        }
+        Set<String> sets = new HashSet<>();
+        Services.CAPABILITY.get(player).ifPresent(diet ->
+            DietSuites.getSuite(player.level(), diet.getSuite()).ifPresent(suite -> {
+              for (IDietEffect effect : suite.getEffects()) {
+                IDietNotification n = effect.getNotification().orElse(null);
+
+                if (n != null) {
+                  sets.addAll(n.getSets());
+                }
+              }
+            }));
+        return SharedSuggestionProvider.suggest(sets, builder);
+      };
+
+  private static final SuggestionProvider<CommandSourceStack> SUGGEST_FREQUENCIES =
+      (ctx, builder) -> SharedSuggestionProvider.suggest(
+          Arrays.stream(NotificationFrequency.values())
+              .map(f -> f.name().toLowerCase(Locale.ROOT)),
+          builder);
+
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     LiteralArgumentBuilder<CommandSourceStack> dietCommand = Commands.literal("diet");
 
     dietCommand.then(Commands.literal("get")
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
-            .then(Commands.argument("group", DietGroupArgument.group())
-                .executes(ctx -> get(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
-                    DietGroupArgument.getGroup(ctx, "group"))))));
+            .then(Commands.argument("group", StringArgumentType.word())
+                .suggests(SUGGEST_GROUPS)
+                .executes(ctx -> {
+                  IDietGroup group = resolveGroup(ctx.getSource(),
+                      StringArgumentType.getString(ctx, "group"));
+                  if (group == null) {
+                    return 0;
+                  }
+                  return get(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"), group);
+                }))));
 
     dietCommand.then(Commands.literal("set")
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
-            .then(Commands.argument("group", DietGroupArgument.group())
+            .then(Commands.argument("group", StringArgumentType.word())
+                .suggests(SUGGEST_GROUPS)
                 .then(Commands.argument("value", FloatArgumentType.floatArg(0.0f, 1.0f))
-                    .executes(ctx -> set(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
-                        FloatArgumentType.getFloat(ctx, "value"),
-                        DietGroupArgument.getGroup(ctx, "group")))))));
+                    .executes(ctx -> {
+                      IDietGroup group = resolveGroup(ctx.getSource(),
+                          StringArgumentType.getString(ctx, "group"));
+                      if (group == null) {
+                        return 0;
+                      }
+                      return set(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
+                          FloatArgumentType.getFloat(ctx, "value"), group);
+                    })))));
 
     dietCommand.then(Commands.literal("add")
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
-            .then(Commands.argument("group", DietGroupArgument.group())
+            .then(Commands.argument("group", StringArgumentType.word())
+                .suggests(SUGGEST_GROUPS)
                 .then(Commands.argument("value", FloatArgumentType.floatArg(0.0f, 1.0f))
-                    .executes(
-                        ctx -> modify(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
-                            FloatArgumentType.getFloat(ctx, "value"),
-                            DietGroupArgument.getGroup(ctx, "group")))))));
+                    .executes(ctx -> {
+                      IDietGroup group = resolveGroup(ctx.getSource(),
+                          StringArgumentType.getString(ctx, "group"));
+                      if (group == null) {
+                        return 0;
+                      }
+                      return modify(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
+                          FloatArgumentType.getFloat(ctx, "value"), group);
+                    })))));
 
     dietCommand.then(Commands.literal("subtract")
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
-            .then(Commands.argument("group", DietGroupArgument.group())
+            .then(Commands.argument("group", StringArgumentType.word())
+                .suggests(SUGGEST_GROUPS)
                 .then(Commands.argument("value", FloatArgumentType.floatArg(0.0f, 1.0f))
-                    .executes(
-                        ctx -> modify(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
-                            -1 * FloatArgumentType.getFloat(ctx, "value"),
-                            DietGroupArgument.getGroup(ctx, "group")))))));
+                    .executes(ctx -> {
+                      IDietGroup group = resolveGroup(ctx.getSource(),
+                          StringArgumentType.getString(ctx, "group"));
+                      if (group == null) {
+                        return 0;
+                      }
+                      return modify(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
+                          -1 * FloatArgumentType.getFloat(ctx, "value"), group);
+                    })))));
 
     dietCommand.then(Commands.literal("reset")
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
@@ -111,8 +195,16 @@ public class DietCommand {
         .executes(ctx -> export(ctx.getSource(), DietCsv.ExportMode.ALL));
 
     exportArg.then(Commands.literal("group").then(
-        Commands.argument("group", DietGroupArgument.group()).executes(
-            ctx -> export(ctx.getSource(), DietGroupArgument.getGroup(ctx, "group")))));
+        Commands.argument("group", StringArgumentType.word())
+            .suggests(SUGGEST_GROUPS)
+            .executes(ctx -> {
+              IDietGroup group = resolveGroup(ctx.getSource(),
+                  StringArgumentType.getString(ctx, "group"));
+              if (group == null) {
+                return 0;
+              }
+              return export(ctx.getSource(), group);
+            })));
 
     exportArg.then(Commands.literal("mod_id").then(
         Commands.argument("mod_id", Services.REGISTRY.getModIdArgument())
@@ -130,11 +222,11 @@ public class DietCommand {
     dietCommand.then(Commands.literal("notify")
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
-            .then(Commands.argument("notification_id", DietNotificationIdArgument.id())
-                .suggests(DietNotificationIdArgument.SUGGESTIONS)
+            .then(Commands.argument("notification_id", StringArgumentType.word())
+                .suggests(SUGGEST_NOTIFICATION_IDS)
                 .executes(ctx -> notifyTest(ctx.getSource(),
                     EntityArgument.getPlayer(ctx, "player"),
-                    DietNotificationIdArgument.get(ctx, "notification_id"))))));
+                    StringArgumentType.getString(ctx, "notification_id"))))));
 
     dietCommand.then(buildNotificationsTree());
 
@@ -145,32 +237,65 @@ public class DietCommand {
     LiteralArgumentBuilder<CommandSourceStack> notifications = Commands.literal("notifications");
 
     notifications.then(Commands.literal("message")
-        .then(Commands.argument("notification_id", DietNotificationIdArgument.id())
-            .suggests(DietNotificationIdArgument.SUGGESTIONS)
-            .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
-                .executes(ctx -> setNotificationFrequency(ctx.getSource(),
-                    DietNotificationIdArgument.get(ctx, "notification_id"),
-                    NotificationFrequencyArgument.get(ctx, "frequency"))))));
+        .then(Commands.argument("notification_id", StringArgumentType.word())
+            .suggests(SUGGEST_NOTIFICATION_IDS)
+            .then(Commands.argument("frequency", StringArgumentType.word())
+                .suggests(SUGGEST_FREQUENCIES)
+                .executes(ctx -> {
+                  NotificationFrequency f = resolveFrequency(ctx.getSource(),
+                      StringArgumentType.getString(ctx, "frequency"));
+                  if (f == null) {
+                    return 0;
+                  }
+                  return setNotificationFrequency(ctx.getSource(),
+                      StringArgumentType.getString(ctx, "notification_id"), f);
+                }))));
 
     notifications.then(Commands.literal("group")
-        .then(Commands.argument("group", DietGroupArgument.group())
-            .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
-                .executes(ctx -> setGroup(ctx.getSource(),
-                    DietGroupArgument.getGroup(ctx, "group"),
-                    NotificationFrequencyArgument.get(ctx, "frequency"))))));
+        .then(Commands.argument("group", StringArgumentType.word())
+            .suggests(SUGGEST_GROUPS)
+            .then(Commands.argument("frequency", StringArgumentType.word())
+                .suggests(SUGGEST_FREQUENCIES)
+                .executes(ctx -> {
+                  IDietGroup group = resolveGroup(ctx.getSource(),
+                      StringArgumentType.getString(ctx, "group"));
+                  if (group == null) {
+                    return 0;
+                  }
+                  NotificationFrequency f = resolveFrequency(ctx.getSource(),
+                      StringArgumentType.getString(ctx, "frequency"));
+                  if (f == null) {
+                    return 0;
+                  }
+                  return setGroup(ctx.getSource(), group, f);
+                }))));
 
     notifications.then(Commands.literal("set")
-        .then(Commands.argument("set_id", DietNotificationSetArgument.set())
-            .suggests(DietNotificationSetArgument.SUGGESTIONS)
-            .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
-                .executes(ctx -> setSet(ctx.getSource(),
-                    DietNotificationSetArgument.get(ctx, "set_id"),
-                    NotificationFrequencyArgument.get(ctx, "frequency"))))));
+        .then(Commands.argument("set_id", StringArgumentType.word())
+            .suggests(SUGGEST_NOTIFICATION_SETS)
+            .then(Commands.argument("frequency", StringArgumentType.word())
+                .suggests(SUGGEST_FREQUENCIES)
+                .executes(ctx -> {
+                  NotificationFrequency f = resolveFrequency(ctx.getSource(),
+                      StringArgumentType.getString(ctx, "frequency"));
+                  if (f == null) {
+                    return 0;
+                  }
+                  return setSet(ctx.getSource(),
+                      StringArgumentType.getString(ctx, "set_id"), f);
+                }))));
 
     notifications.then(Commands.literal("all")
-        .then(Commands.argument("frequency", NotificationFrequencyArgument.frequency())
-            .executes(ctx -> setAll(ctx.getSource(),
-                NotificationFrequencyArgument.get(ctx, "frequency")))));
+        .then(Commands.argument("frequency", StringArgumentType.word())
+            .suggests(SUGGEST_FREQUENCIES)
+            .executes(ctx -> {
+              NotificationFrequency f = resolveFrequency(ctx.getSource(),
+                  StringArgumentType.getString(ctx, "frequency"));
+              if (f == null) {
+                return 0;
+              }
+              return setAll(ctx.getSource(), f);
+            })));
 
     notifications.then(Commands.literal("list")
         .executes(ctx -> list(ctx.getSource())));
@@ -179,12 +304,32 @@ public class DietCommand {
         .executes(ctx -> resetOverrides(ctx.getSource())));
 
     notifications.then(Commands.literal("options")
-        .then(Commands.argument("notification_id", DietNotificationIdArgument.id())
-            .suggests(DietNotificationIdArgument.SUGGESTIONS)
+        .then(Commands.argument("notification_id", StringArgumentType.word())
+            .suggests(SUGGEST_NOTIFICATION_IDS)
             .executes(ctx -> options(ctx.getSource(),
-                DietNotificationIdArgument.get(ctx, "notification_id")))));
+                StringArgumentType.getString(ctx, "notification_id")))));
 
     return notifications;
+  }
+
+  private static IDietGroup resolveGroup(CommandSourceStack source, String name) {
+    IDietGroup group = DietGroups.SERVER.getGroup(name).orElse(null);
+
+    if (group == null) {
+      source.sendFailure(Component.translatable(
+          "commands." + DietConstants.MOD_ID + ".group.unknown", name));
+    }
+    return group;
+  }
+
+  private static NotificationFrequency resolveFrequency(CommandSourceStack source, String name) {
+    try {
+      return NotificationFrequency.valueOf(name.toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException e) {
+      source.sendFailure(Component.translatable(
+          "commands." + DietConstants.MOD_ID + ".notifications.frequency.unknown", name));
+      return null;
+    }
   }
 
   private static int get(CommandSourceStack sender, ServerPlayer player, IDietGroup group) {
