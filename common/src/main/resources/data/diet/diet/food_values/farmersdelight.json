@@ -2,7 +2,7 @@
   "replace": false,
   "values": {
     "farmersdelight:cabbage": {
-      "fruits": 0.04
+      "vegetables": 0.04
     },
     "farmersdelight:tomato": {
       "fruits": 0.01,
@@ -52,7 +52,7 @@
       "vegetables": 0.02
     },
     "farmersdelight:minced_beef": {
-      "vegetables": 0.03
+      "proteins": 0.03
     },
     "farmersdelight:beef_patty": {
       "proteins": 0.06
