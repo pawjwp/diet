@@ -49,8 +49,8 @@ This update was made by [Pawjwp](https://github.com/pawjwp) to add some clarity,
                 - `rise_through`, when the player enters or passes through the specified threshold from below
                 - `fall_through`, when the player enters or passes through the specified threshold from above
                 - `exit`, when the player leaves the specified threshold
-                - `rise_out`, when the player leaves the specified threshold
-                - `fall_out`, when the player leaves the specified threshold
+                - `rise_out`, when the player leaves the specified threshold by rising above it
+                - `fall_out`, when the player leaves the specified threshold by falling below it
                 - `all`,  when the player enters or exits the specified threshold
             - `default_frequency`, how many times the notification will appear. A config option sets the default values for when `default_frequency` is omitted.
                 - `always`, notification will appear every time its trigger is met
