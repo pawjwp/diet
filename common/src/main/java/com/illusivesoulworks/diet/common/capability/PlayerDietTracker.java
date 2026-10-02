@@ -25,11 +25,11 @@ import com.illusivesoulworks.diet.common.config.DietConfig;
 import com.illusivesoulworks.diet.common.data.effect.DietEffect;
 import com.illusivesoulworks.diet.common.data.effect.DietEffectsInfo;
 import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
-import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.notification.DietNotificationDispatcher;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.common.util.DietResult;
 import com.illusivesoulworks.diet.platform.Services;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -204,7 +204,8 @@ public class PlayerDietTracker implements IDietTracker {
     if (!DietConfig.SERVER.enableDataFoodValues.get()) {
       return;
     }
-    Set<IDietGroup> available = DietGroups.getGroups(this.player.level());
+    Set<IDietGroup> available = DietSuites.getSuite(this.player.level(), this.suite)
+        .map(IDietSuite::getGroups).orElse(Collections.emptySet());
     Optional<Map<IDietGroup, Float>> entry = DietFoodValues.SERVER.lookup(stack, available);
 
     if (entry.isEmpty()) {

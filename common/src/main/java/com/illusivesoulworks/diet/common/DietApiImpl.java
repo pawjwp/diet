@@ -138,7 +138,8 @@ public class DietApiImpl extends DietApi {
     if (dataOverride.isPresent()) {
       return dataOverride.get();
     }
-    Set<IDietGroup> groups = getGroups(player, input);
+    Set<IDietGroup> groups = new HashSet<>(getGroups(player, input));
+    groups.retainAll(getSuiteGroups(player));
 
     if (groups.isEmpty()) {
       return DietResult.EMPTY;
@@ -196,6 +197,7 @@ public class DietApiImpl extends DietApi {
     for (ItemStack stack : stacks) {
       groups.addAll(getGroups(player, stack));
     }
+    groups.retainAll(getSuiteGroups(player));
 
     if (groups.isEmpty()) {
       return DietResult.EMPTY;
@@ -203,13 +205,18 @@ public class DietApiImpl extends DietApi {
     return new DietResult(calculate(food, saturation, groups));
   }
 
-  private static Optional<IDietResult> getDataDrivenResult(Player player, ItemStack stack) {
+  private Optional<IDietResult> getDataDrivenResult(Player player, ItemStack stack) {
 
     if (!DietConfig.SERVER.enableDataFoodValues.get()) {
       return Optional.empty();
     }
-    Set<IDietGroup> available = DietGroups.getGroups(player.level());
-    return DietFoodValues.SERVER.lookup(stack, available).map(DietResult::new);
+    return DietFoodValues.SERVER.lookup(stack, getSuiteGroups(player)).map(DietResult::new);
+  }
+
+  // The groups in the player's suite, which are the only groups that eating can change.
+  private Set<IDietGroup> getSuiteGroups(Player player) {
+    IDietSuite suite = getSuite(player);
+    return suite == null ? Collections.emptySet() : suite.getGroups();
   }
 
   private static Map<IDietGroup, Float> calculate(float healing, float saturation,

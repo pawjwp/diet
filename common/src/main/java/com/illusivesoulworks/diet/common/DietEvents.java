@@ -20,6 +20,7 @@ package com.illusivesoulworks.diet.common;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.common.util.DietValueGenerator;
+import com.illusivesoulworks.diet.platform.Services;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -36,6 +37,11 @@ public class DietEvents {
     for (ServerPlayer player : server.getPlayerList().getPlayers()) {
       DietGroups.SERVER.sync(player);
       DietSuites.SERVER.sync(player);
+      // Rebuild players' groups so a reload that changes groups will take effect
+      Services.CAPABILITY.get(player).ifPresent(diet -> {
+        diet.initSuite();
+        diet.sync();
+      });
     }
   }
 }
