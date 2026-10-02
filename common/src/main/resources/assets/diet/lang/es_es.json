@@ -78,6 +78,8 @@
   "gui.diet.config.deathPenaltyMethod.description": "Método a aplicar para las pérdidas debidas a las penalizaciones por muerte.\nCANTIDAD = Reducir en un porcentaje fijo\nPORCENTAJE = Reducir en un porcentaje del valor actual\nRESTABLECER = Restablecer el valor a los valores predeterminados",
   "gui.diet.config.defaultSuite.name": "Suite de dieta predeterminada",
   "gui.diet.config.defaultSuite.description": "La suite de dieta que usan los jugadores de forma predeterminada.",
+  "gui.diet.config.requireHungerGain.name": "Requerir ganancia de hambre para la ganancia de dieta",
+  "gui.diet.config.requireHungerGain.description": "Si está habilitada, comer solo aumentará los valores de la dieta si también aumenta el hambre del jugador.",
   "gui.diet.config.gainPenaltyPerGroup.name": "Penalización por ganancia por grupo de alimentos",
   "gui.diet.config.gainPenaltyPerGroup.description": "Reducción porcentual en la ganancia total para cada grupo de dieta consumido a la vez.",
   "gui.diet.config.decayPenaltyPerGroup.name": "Ralentización de la descomposición por grupo de alimentos",

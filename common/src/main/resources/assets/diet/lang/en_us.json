@@ -78,6 +78,8 @@
   "gui.diet.config.deathPenaltyMethod.description": "The method to apply for losses due to death penalties.\nAMOUNT = Reduce by a flat percentage amount\nPERCENT = Reduce by a percent of the current value\nRESET = Reset value to defaults",
   "gui.diet.config.defaultSuite.name": "Default diet suite",
   "gui.diet.config.defaultSuite.description": "The diet suite that players use by default.",
+  "gui.diet.config.requireHungerGain.name": "Require hunger gain for diet gain",
+  "gui.diet.config.requireHungerGain.description": "If enabled, eating food will only increase diet values if it also increases their hunger.",
   "gui.diet.config.gainPenaltyPerGroup.name": "Gain penalty per food group",
   "gui.diet.config.gainPenaltyPerGroup.description": "The percentage reduction in total gain for each diet group consumed at once.",
   "gui.diet.config.decayPenaltyPerGroup.name": "Decay slowdown per food group",

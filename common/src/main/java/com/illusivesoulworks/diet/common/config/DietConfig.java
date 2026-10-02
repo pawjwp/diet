@@ -95,6 +95,7 @@ public class DietConfig {
 
     public final SpectreConfigSpec.IntValue gainPenaltyPerGroup;
     public final SpectreConfigSpec.IntValue decayPenaltyPerGroup;
+    public final SpectreConfigSpec.BooleanValue requireHungerGain;
     public final SpectreConfigSpec.ConfigValue<List<? extends String>> foodOverrides;
 
     public final SpectreConfigSpec.BooleanValue hideTooltipsUntilEaten;
@@ -138,6 +139,11 @@ public class DietConfig {
           .comment("The percentage reduction in total decay for each diet group decayed at once.")
           .translation(CONFIG_PREFIX + "decayPenaltyPerGroup")
           .defineInRange("decayPenaltyPerGroup", 15, 0, 100);
+
+      requireHungerGain = builder.comment(
+              "If enabled, eating food will only increase diet values if it also increases their hunger.")
+          .translation(CONFIG_PREFIX + "requireHungerGain")
+          .define("requireHungerGain", false);
 
       foodOverrides = builder.comment(
               "List of food quality overrides for diet gain values." +

@@ -150,8 +150,7 @@ public class PlayerDietTracker implements IDietTracker {
   @Override
   public void consume(ItemStack stack, int healing, float saturationModifier) {
 
-    if (this.active && this.prevFood != this.player.getFoodData().getFoodLevel() &&
-        !Services.EVENT.fireConsumeStackEvent(stack, this.player)) {
+    if (this.canGain() && !Services.EVENT.fireConsumeStackEvent(stack, this.player)) {
       IDietResult result =
           DietApi.getInstance().get(this.player, stack, healing, saturationModifier);
 
@@ -165,7 +164,7 @@ public class PlayerDietTracker implements IDietTracker {
   @Override
   public void consume(List<ItemStack> stacks, int healing, float saturationModifier) {
 
-    if (this.active && this.prevFood != this.player.getFoodData().getFoodLevel()) {
+    if (this.canGain()) {
       IDietResult result =
           DietApi.getInstance().get(this.player, stacks, healing, saturationModifier);
 
@@ -178,8 +177,7 @@ public class PlayerDietTracker implements IDietTracker {
   @Override
   public void consume(ItemStack stack) {
 
-    if (this.active && this.prevFood != this.player.getFoodData().getFoodLevel() &&
-        !Services.EVENT.fireConsumeStackEvent(stack, this.player)) {
+    if (this.canGain() && !Services.EVENT.fireConsumeStackEvent(stack, this.player)) {
       IDietResult result = DietApi.getInstance().get(this.player, stack);
 
       if (result != DietResult.EMPTY) {
@@ -187,6 +185,13 @@ public class PlayerDietTracker implements IDietTracker {
         this.apply(result);
       }
     }
+  }
+
+  // Checks whether eating can raise diet values.
+  // Requires an increase in hunger values or requireHungerGain to be disabled.
+  private boolean canGain() {
+    return this.active && (!DietConfig.SERVER.requireHungerGain.get() ||
+        this.player.getFoodData().getFoodLevel() > this.prevFood);
   }
 
   @Override
