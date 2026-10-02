@@ -91,6 +91,8 @@ public class DietConfig {
     public final SpectreConfigSpec.IntValue deathPenaltyLoss;
     public final SpectreConfigSpec.EnumValue<DeathPenaltyMethod> deathPenaltyMethod;
 
+    public final SpectreConfigSpec.ConfigValue<String> defaultSuite;
+
     public final SpectreConfigSpec.IntValue gainPenaltyPerGroup;
     public final SpectreConfigSpec.IntValue decayPenaltyPerGroup;
     public final SpectreConfigSpec.ConfigValue<List<? extends String>> foodOverrides;
@@ -121,6 +123,11 @@ public class DietConfig {
               RESET = Reset value to defaults""")
           .translation(CONFIG_PREFIX + "deathPenaltyMethod")
           .defineEnum("deathPenaltyMethod", DeathPenaltyMethod.AMOUNT);
+
+      defaultSuite = builder.comment(
+              "The diet suite that players use by default.")
+          .translation(CONFIG_PREFIX + "defaultSuite")
+          .define("defaultSuite", "builtin");
 
       gainPenaltyPerGroup = builder
           .comment("The percentage reduction in total gain for each diet group consumed at once.")

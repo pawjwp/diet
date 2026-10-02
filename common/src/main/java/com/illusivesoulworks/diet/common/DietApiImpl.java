@@ -20,9 +20,11 @@ package com.illusivesoulworks.diet.common;
 import com.illusivesoulworks.diet.api.DietApi;
 import com.illusivesoulworks.diet.api.type.IDietGroup;
 import com.illusivesoulworks.diet.api.type.IDietResult;
+import com.illusivesoulworks.diet.api.type.IDietSuite;
 import com.illusivesoulworks.diet.common.config.DietConfig;
 import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
+import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.common.util.DietResult;
 import com.illusivesoulworks.diet.common.util.DietValueGenerator;
 import com.illusivesoulworks.diet.platform.Services;
@@ -43,6 +45,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.tuple.Triple;
 
 public class DietApiImpl extends DietApi {
@@ -102,6 +105,30 @@ public class DietApiImpl extends DietApi {
     }
     return groups.isEmpty() ? DietValueGenerator.get(input.getItem()).orElse(new HashSet<>()) :
         groups;
+  }
+
+  @Override
+  public IDietSuite getSuite(Player player) {
+    return Services.CAPABILITY.get(player)
+        .flatMap(diet -> DietSuites.getSuite(player.level(), diet.getSuite())).orElse(null);
+  }
+
+  @Override
+  public boolean setSuite(Player player, String suite) {
+
+    if (DietSuites.getSuite(player.level(), suite).isEmpty()) {
+      return false;
+    }
+    Services.CAPABILITY.get(player).ifPresent(diet -> {
+      diet.setSuite(suite);
+      diet.sync();
+    });
+    return true;
+  }
+
+  @Override
+  public Set<IDietSuite> getSuites(Level level) {
+    return new HashSet<>(DietSuites.getSuites(level));
   }
 
   @Override

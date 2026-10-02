@@ -37,6 +37,7 @@ import com.illusivesoulworks.diet.common.data.effect.DietNotification;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.platform.Services;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +77,10 @@ public class DietSuites extends SimpleJsonResourceReloadListener {
   public static Optional<IDietSuite> getSuite(Level level, String name) {
     DietSuites instance = level.isClientSide() ? CLIENT : SERVER;
     return Optional.ofNullable(instance.suites.get(name));
+  }
+
+  public static Collection<IDietSuite> getSuites(Level level) {
+    return (level.isClientSide() ? CLIENT : SERVER).suites.values();
   }
 
   public CompoundTag save() {

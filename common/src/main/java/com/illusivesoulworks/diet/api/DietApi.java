@@ -27,6 +27,7 @@ import java.util.Set;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public abstract class DietApi {
 
@@ -50,15 +51,34 @@ public abstract class DietApi {
     return new HashSet<>();
   }
 
+  /**
+   * Retrieves the diet suite that a player is currently using.
+   *
+   * @param player The player involved
+   * @return The player's suite, or null if no loaded suite has that name
+   */
   public IDietSuite getSuite(Player player) {
     return null;
   }
 
-  public IDietSuite setSuite(Player player) {
-    return null;
+  /**
+   * Switches a player to a different diet suite.
+   *
+   * @param player The player involved
+   * @param suite  The name of the suite to switch to
+   * @return True if the suite exists and the player was switched to it
+   */
+  public boolean setSuite(Player player, String suite) {
+    return false;
   }
 
-  public Set<IDietSuite> getSuites() {
+  /**
+   * Retrieves all loaded diet suites on the given level's side.
+   *
+   * @param level The level whose side (client or server) to read suites from
+   * @return A set of diet suites
+   */
+  public Set<IDietSuite> getSuites(Level level) {
     return new HashSet<>();
   }
 

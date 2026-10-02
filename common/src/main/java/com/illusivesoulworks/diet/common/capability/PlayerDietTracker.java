@@ -68,7 +68,7 @@ public class PlayerDietTracker implements IDietTracker {
   private final Map<String, Float> previousValues = new HashMap<>();
 
   private boolean active = true;
-  private String suite = "builtin";
+  private String suite;
   private boolean reseedNotificationsNextTick = false;
 
   private int prevFood = 0;
@@ -81,11 +81,19 @@ public class PlayerDietTracker implements IDietTracker {
 
   public PlayerDietTracker(Player player) {
     this.player = player;
+    // Start on builtin by default on the client (syncs from the server later)
+    this.suite = player.level().isClientSide() ? "builtin" : DietConfig.SERVER.defaultSuite.get();
     this.initSuite();
   }
 
   @Override
   public void initSuite() {
+
+    // Use the default suite if the player's suite is missing, such as from a removed datapack
+    if (!this.player.level().isClientSide() &&
+        DietSuites.getSuite(this.player.level(), this.suite).isEmpty()) {
+      this.suite = DietConfig.SERVER.defaultSuite.get();
+    }
     Map<String, Float> oldValues = new HashMap<>(this.values);
     this.values.clear();
     DietSuites.getSuite(this.player.level(), this.suite).ifPresent(suite -> {
@@ -579,6 +587,7 @@ public class PlayerDietTracker implements IDietTracker {
     }
     tag.put("Eaten", list);
     tag.putBoolean("Active", this.isActive());
+    tag.putString("Suite", this.suite);
     ListTag matchedList = new ListTag();
 
     for (String id : this.lastMatchedNotifications) {
@@ -595,6 +604,8 @@ public class PlayerDietTracker implements IDietTracker {
 
   @Override
   public void load(CompoundTag tag) {
+    this.suite = tag.getString("Suite");
+    this.initSuite();
     Map<String, Float> groups = new HashMap<>();
 
     DietSuites.getSuite(this.player.level(), this.suite).ifPresent(suite -> {
@@ -658,6 +669,8 @@ public class PlayerDietTracker implements IDietTracker {
   public void copy(Player oldPlayer, boolean wasDeath) {
     Services.CAPABILITY.get(this.player)
         .ifPresent(diet -> Services.CAPABILITY.get(oldPlayer).ifPresent(originalDiet -> {
+          this.suite = originalDiet.getSuite();
+          this.initSuite();
           Map<String, Float> originalValues = originalDiet.getValues();
           DietSuites.getSuite(this.player.level(), this.suite).ifPresent(suite -> {
 

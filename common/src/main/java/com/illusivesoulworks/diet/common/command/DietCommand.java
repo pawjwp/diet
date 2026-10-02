@@ -18,9 +18,11 @@
 package com.illusivesoulworks.diet.common.command;
 
 import com.illusivesoulworks.diet.DietConstants;
+import com.illusivesoulworks.diet.api.DietApi;
 import com.illusivesoulworks.diet.api.type.IDietEffect;
 import com.illusivesoulworks.diet.api.type.IDietGroup;
 import com.illusivesoulworks.diet.api.type.IDietNotification;
+import com.illusivesoulworks.diet.api.type.IDietSuite;
 import com.illusivesoulworks.diet.api.type.NotificationFrequency;
 import com.illusivesoulworks.diet.common.config.DietConfig;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
@@ -54,6 +56,11 @@ public class DietCommand {
   private static final SuggestionProvider<CommandSourceStack> SUGGEST_GROUPS =
       (ctx, builder) -> SharedSuggestionProvider.suggest(
           DietGroups.SERVER.getGroups().stream().map(IDietGroup::getName), builder);
+
+  private static final SuggestionProvider<CommandSourceStack> SUGGEST_SUITES =
+      (ctx, builder) -> SharedSuggestionProvider.suggest(
+          DietSuites.getSuites(ctx.getSource().getLevel()).stream().map(IDietSuite::getName),
+          builder);
 
   private static final SuggestionProvider<CommandSourceStack> SUGGEST_NOTIFICATION_IDS =
       (ctx, builder) -> {
@@ -172,6 +179,15 @@ public class DietCommand {
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
         .then(Commands.argument("player", EntityArgument.player())
             .executes(ctx -> reset(ctx.getSource(), EntityArgument.getPlayer(ctx, "player")))));
+
+    dietCommand.then(Commands.literal("suite")
+        .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
+        .then(Commands.argument("player", EntityArgument.player())
+            .executes(ctx -> getSuite(ctx.getSource(), EntityArgument.getPlayer(ctx, "player")))
+            .then(Commands.argument("suite", StringArgumentType.word())
+                .suggests(SUGGEST_SUITES)
+                .executes(ctx -> setSuite(ctx.getSource(), EntityArgument.getPlayer(ctx, "player"),
+                    StringArgumentType.getString(ctx, "suite"))))));
 
     dietCommand.then(Commands.literal("pause")
         .requires(p -> p.hasPermission(OP_PERMISSION_LEVEL))
@@ -392,6 +408,26 @@ public class DietCommand {
           () -> Component.translatable("commands." + DietConstants.MOD_ID + ".reset.success",
               player.getName()), true);
     });
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int getSuite(CommandSourceStack sender, ServerPlayer player) {
+    Services.CAPABILITY.get(player).ifPresent(diet -> sender.sendSuccess(
+        () -> Component.translatable("commands." + DietConstants.MOD_ID + ".suite.get.success",
+            diet.getSuite(), player.getName()), true));
+    return Command.SINGLE_SUCCESS;
+  }
+
+  private static int setSuite(CommandSourceStack sender, ServerPlayer player, String suite) {
+
+    if (!DietApi.getInstance().setSuite(player, suite)) {
+      sender.sendFailure(Component.translatable(
+          "commands." + DietConstants.MOD_ID + ".suite.unknown", suite));
+      return 0;
+    }
+    sender.sendSuccess(
+        () -> Component.translatable("commands." + DietConstants.MOD_ID + ".suite.set.success",
+            suite, player.getName()), true);
     return Command.SINGLE_SUCCESS;
   }
 
