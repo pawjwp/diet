@@ -22,6 +22,7 @@ import com.illusivesoulworks.diet.common.network.server.SPacketActivate;
 import com.illusivesoulworks.diet.common.network.server.SPacketDiet;
 import com.illusivesoulworks.diet.common.network.server.SPacketEaten;
 import com.illusivesoulworks.diet.common.network.server.SPacketEffectsInfo;
+import com.illusivesoulworks.diet.common.network.server.SPacketFoodValues;
 import com.illusivesoulworks.diet.common.network.server.SPacketGroups;
 import com.illusivesoulworks.diet.common.network.server.SPacketSuites;
 import java.util.function.BiConsumer;
@@ -37,7 +38,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 public class DietForgeNetwork {
 
-  private static final String PTC_VERSION = "1";
+  private static final String PTC_VERSION = "2";
 
   public static SimpleChannel instance;
 
@@ -60,6 +61,8 @@ public class DietForgeNetwork {
         SPacketGroups::handle);
     register(SPacketSuites.class, SPacketSuites::encode, SPacketSuites::decode,
         SPacketSuites::handle);
+    register(SPacketFoodValues.class, SPacketFoodValues::encode, SPacketFoodValues::decode,
+        SPacketFoodValues::handle);
   }
 
   public static <M> void register(Class<M> clazz, BiConsumer<M, FriendlyByteBuf> encoder,

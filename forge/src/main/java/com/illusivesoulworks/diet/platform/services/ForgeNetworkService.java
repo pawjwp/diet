@@ -23,6 +23,7 @@ import com.illusivesoulworks.diet.common.network.server.SPacketActivate;
 import com.illusivesoulworks.diet.common.network.server.SPacketDiet;
 import com.illusivesoulworks.diet.common.network.server.SPacketEaten;
 import com.illusivesoulworks.diet.common.network.server.SPacketEffectsInfo;
+import com.illusivesoulworks.diet.common.network.server.SPacketFoodValues;
 import com.illusivesoulworks.diet.common.network.server.SPacketGroups;
 import com.illusivesoulworks.diet.common.network.server.SPacketSuites;
 import java.util.Map;
@@ -69,5 +70,11 @@ public class ForgeNetworkService implements INetworkService {
   public void sendDietSuitesS2C(ServerPlayer player, CompoundTag suites) {
     DietForgeNetwork.instance.send(PacketDistributor.PLAYER.with(() -> player),
         new SPacketSuites(suites));
+  }
+
+  @Override
+  public void sendFoodValuesS2C(ServerPlayer player, CompoundTag foodValues) {
+    DietForgeNetwork.instance.send(PacketDistributor.PLAYER.with(() -> player),
+        new SPacketFoodValues(foodValues));
   }
 }

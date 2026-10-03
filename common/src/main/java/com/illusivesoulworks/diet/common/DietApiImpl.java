@@ -210,7 +210,7 @@ public class DietApiImpl extends DietApi {
     if (!DietConfig.SERVER.enableDataFoodValues.get()) {
       return Optional.empty();
     }
-    return DietFoodValues.SERVER.lookup(stack, getSuiteGroups(player)).map(DietResult::new);
+    return DietFoodValues.lookup(player.level(), stack, getSuiteGroups(player)).map(DietResult::new);
   }
 
   // The groups in the player's suite, which are the only groups that eating can change.

@@ -31,12 +31,17 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -46,6 +51,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class DietFoodValues
     extends SimplePreparableReloadListener<List<DietFoodValues.FoodValueFile>> {
@@ -58,17 +64,19 @@ public class DietFoodValues
   private Map<Item, Map<String, Float>> itemEntries = new HashMap<>();
   private List<TagEntry> tagEntries = new ArrayList<>();
 
-  public Optional<Map<IDietGroup, Float>> lookup(ItemStack stack, Set<IDietGroup> availableGroups) {
+  public static Optional<Map<IDietGroup, Float>> lookup(Level level, ItemStack stack,
+                                                        Set<IDietGroup> availableGroups) {
+    DietFoodValues instance = level.isClientSide() ? CLIENT : SERVER;
 
-    if (stack.isEmpty() || (itemEntries.isEmpty() && tagEntries.isEmpty())) {
+    if (stack.isEmpty() || (instance.itemEntries.isEmpty() && instance.tagEntries.isEmpty())) {
       return Optional.empty();
     }
-    Map<String, Float> raw = itemEntries.get(stack.getItem());
+    Map<String, Float> raw = instance.itemEntries.get(stack.getItem());
 
     // An individual item's entry takes priority over that same item as part of a tag
     if (raw == null) {
 
-      for (TagEntry entry : tagEntries) {
+      for (TagEntry entry : instance.tagEntries) {
 
         if (stack.is(entry.tag)) {
           raw = entry.values;
@@ -93,6 +101,66 @@ public class DietFoodValues
       return Optional.empty();
     }
     return Optional.of(resolved);
+  }
+
+  public CompoundTag save() {
+    CompoundTag items = new CompoundTag();
+
+    for (Map.Entry<Item, Map<String, Float>> entry : this.itemEntries.entrySet()) {
+      items.put(Objects.requireNonNull(Services.REGISTRY.getItemKey(entry.getKey())).toString(),
+          saveValues(entry.getValue()));
+    }
+    ListTag tags = new ListTag();
+
+    for (TagEntry entry : this.tagEntries) {
+      CompoundTag tag = new CompoundTag();
+      tag.putString("Tag", entry.tag.location().toString());
+      tag.put("Values", saveValues(entry.values));
+      tags.add(tag);
+    }
+    CompoundTag tag = new CompoundTag();
+    tag.put("Items", items);
+    tag.put("Tags", tags);
+    return tag;
+  }
+
+  public void load(CompoundTag tag) {
+    Map<Item, Map<String, Float>> items = new HashMap<>();
+    CompoundTag itemsTag = tag.getCompound("Items");
+
+    for (String key : itemsTag.getAllKeys()) {
+      Services.REGISTRY.getItem(new ResourceLocation(key))
+          .ifPresent(item -> items.put(item, loadValues(itemsTag.getCompound(key))));
+    }
+    List<TagEntry> tags = new ArrayList<>();
+
+    for (Tag entry : tag.getList("Tags", Tag.TAG_COMPOUND)) {
+      CompoundTag entryTag = (CompoundTag) entry;
+      tags.add(new TagEntry(
+          TagKey.create(Registries.ITEM, new ResourceLocation(entryTag.getString("Tag"))),
+          loadValues(entryTag.getCompound("Values"))));
+    }
+    this.itemEntries = items;
+    this.tagEntries = tags;
+  }
+
+  public void sync(ServerPlayer player) {
+    Services.NETWORK.sendFoodValuesS2C(player, this.save());
+  }
+
+  private static CompoundTag saveValues(Map<String, Float> values) {
+    CompoundTag tag = new CompoundTag();
+    values.forEach(tag::putFloat);
+    return tag;
+  }
+
+  private static Map<String, Float> loadValues(CompoundTag tag) {
+    Map<String, Float> values = new HashMap<>();
+
+    for (String group : tag.getAllKeys()) {
+      values.put(group, tag.getFloat(group));
+    }
+    return values;
   }
 
   // Reads every datapack's version of each food values file, based on vanilla's TagLoader

@@ -38,4 +38,6 @@ public interface INetworkService {
                          Map<Item, Set<String>> generated);
 
   void sendDietSuitesS2C(ServerPlayer player, CompoundTag suites);
+
+  void sendFoodValuesS2C(ServerPlayer player, CompoundTag foodValues);
 }

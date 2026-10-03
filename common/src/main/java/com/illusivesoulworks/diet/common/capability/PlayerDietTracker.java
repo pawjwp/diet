@@ -206,7 +206,7 @@ public class PlayerDietTracker implements IDietTracker {
     }
     Set<IDietGroup> available = DietSuites.getSuite(this.player.level(), this.suite)
         .map(IDietSuite::getGroups).orElse(Collections.emptySet());
-    Optional<Map<IDietGroup, Float>> entry = DietFoodValues.SERVER.lookup(stack, available);
+    Optional<Map<IDietGroup, Float>> entry = DietFoodValues.lookup(this.player.level(), stack, available);
 
     if (entry.isEmpty()) {
       return;

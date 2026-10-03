@@ -22,6 +22,7 @@ import com.illusivesoulworks.diet.common.network.server.SPacketActivate;
 import com.illusivesoulworks.diet.common.network.server.SPacketDiet;
 import com.illusivesoulworks.diet.common.network.server.SPacketEaten;
 import com.illusivesoulworks.diet.common.network.server.SPacketEffectsInfo;
+import com.illusivesoulworks.diet.common.network.server.SPacketFoodValues;
 import com.illusivesoulworks.diet.common.network.server.SPacketGroups;
 import com.illusivesoulworks.diet.common.network.server.SPacketSuites;
 import java.util.function.Consumer;
@@ -38,6 +39,7 @@ public class DietFabricNetwork {
   public static final ResourceLocation EATEN = DietCommonMod.resource("eaten");
   public static final ResourceLocation GROUPS = DietCommonMod.resource("groups");
   public static final ResourceLocation SUITES = DietCommonMod.resource("suites");
+  public static final ResourceLocation FOOD_VALUES = DietCommonMod.resource("food_values");
 
   public static void setup() {
     registerClientReceiver(EFFECTS_INFO, SPacketEffectsInfo::decode, SPacketEffectsInfo::handle);
@@ -46,6 +48,7 @@ public class DietFabricNetwork {
     registerClientReceiver(EATEN, SPacketEaten::decode, SPacketEaten::handle);
     registerClientReceiver(GROUPS, SPacketGroups::decode, SPacketGroups::handle);
     registerClientReceiver(SUITES, SPacketSuites::decode, SPacketSuites::handle);
+    registerClientReceiver(FOOD_VALUES, SPacketFoodValues::decode, SPacketFoodValues::handle);
   }
 
   private static <M> void registerClientReceiver(ResourceLocation resourceLocation,

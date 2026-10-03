@@ -23,6 +23,7 @@ import com.illusivesoulworks.diet.common.network.server.SPacketActivate;
 import com.illusivesoulworks.diet.common.network.server.SPacketDiet;
 import com.illusivesoulworks.diet.common.network.server.SPacketEaten;
 import com.illusivesoulworks.diet.common.network.server.SPacketEffectsInfo;
+import com.illusivesoulworks.diet.common.network.server.SPacketFoodValues;
 import com.illusivesoulworks.diet.common.network.server.SPacketGroups;
 import com.illusivesoulworks.diet.common.network.server.SPacketSuites;
 import java.util.Map;
@@ -77,5 +78,12 @@ public class QuiltNetworkService implements INetworkService {
     FriendlyByteBuf buf = PacketByteBufs.create();
     SPacketSuites.encode(new SPacketSuites(suites), buf);
     ServerPlayNetworking.send(player, DietQuiltNetwork.SUITES, buf);
+  }
+
+  @Override
+  public void sendFoodValuesS2C(ServerPlayer player, CompoundTag foodValues) {
+    FriendlyByteBuf buf = PacketByteBufs.create();
+    SPacketFoodValues.encode(new SPacketFoodValues(foodValues), buf);
+    ServerPlayNetworking.send(player, DietQuiltNetwork.FOOD_VALUES, buf);
   }
 }

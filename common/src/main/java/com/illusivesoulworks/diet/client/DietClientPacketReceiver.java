@@ -20,6 +20,7 @@ package com.illusivesoulworks.diet.client;
 import com.illusivesoulworks.diet.api.type.IDietTracker;
 import com.illusivesoulworks.diet.client.screen.DietScreen;
 import com.illusivesoulworks.diet.common.data.effect.DietEffectsInfo;
+import com.illusivesoulworks.diet.common.data.food.DietFoodValues;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.common.data.suite.DietSuites;
 import com.illusivesoulworks.diet.common.network.server.SPacketActivate;
@@ -83,5 +84,9 @@ public class DietClientPacketReceiver {
   public static void handleSuites(CompoundTag suites) {
     DietSuites.CLIENT.load(suites);
     Services.CAPABILITY.get(Minecraft.getInstance().player).ifPresent(IDietTracker::initSuite);
+  }
+
+  public static void handleFoodValues(CompoundTag foodValues) {
+    DietFoodValues.CLIENT.load(foodValues);
   }
 }
