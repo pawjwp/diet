@@ -4,7 +4,7 @@
 
 A Balanced Diet is a fork of the [Diet](https://github.com/illusivesoulworks/diet) mod, which facilitates the creation and management of dietary food groups in Minecraft. Diet comes with a default configuration that creates five classical food groups (fruits, grains, vegetables, proteins, and sugars). The mod is highly configurable; users and modpack developers can define their own food groups, classifications, diet effects, notifications, etc.
 
-This fork was created to add some additional clarity, balance, and quality of life features. These would have been made as a PR to the original mod, but the author stated the mod is not likely to have any further 1.20.1 updates. These new features are almost entirely optional and data-driven, and include a [notification system](https://github.com/pawjwp/diet#notifications) for crossing specified thresholds, [quality overlays](https://github.com/pawjwp/diet#quality-view) to the diet bars that show what thresholds start providing positive or negative effects, and [per-food nutrition](https://github.com/pawjwp/diet#per-food-nutrition) definition.
+This fork was created to add some additional clarity, balance, and quality of life features. These would have been made as a PR to the original mod, but the author stated the mod is not likely to have any further 1.20.1 updates. These new features are almost entirely optional and data-driven, and include a [notification system](https://github.com/pawjwp/diet/wiki/Customizing-Diet-Suites#notifications) for crossing specified thresholds, [quality overlays](https://github.com/pawjwp/diet/wiki/Customizing-Diet-Suites#quality) to the diet bars that show what thresholds start providing positive or negative effects, and [per-food nutrition](https://github.com/pawjwp/diet/wiki/Setting-Food-Values) definition.
 
 ## Downloads
 
@@ -16,11 +16,11 @@ This fork was created to add some additional clarity, balance, and quality of li
 
 ![](https://i.ibb.co/BLYDcbT/diet-screen.png)
 
-Food groups are custom dietary groups that represent the types of food that you have eaten. Each group has a value ranging between 0% and 100% depending on how much of that particular category that a player has eaten. These values increase depending on what types of food a player eats and every group gradually decays when the player uses up their hunger bar.
+Food groups are custom dietary groups that represent the types of food that you have eaten. Each group has a value ranging between 0% and 100% depending on how much of that particular category a player has eaten. These values increase depending on what types of food a player eats and every group gradually decays when the player uses up their hunger bar.
 
-By default, Diet comes with five classical food groups: Fruits, Grains, Proteins, Vegetables, and Sugars. Nutrition values are typically determined by tags. However, if enabled in the config, they can be [set per-food](https://github.com/pawjwp/diet#per-food-nutrition) instead.
+By default, Diet comes with five classical food groups: Fruits, Grains, Proteins, Vegetables, and Sugars. Nutrition values are typically determined by tags. However, if enabled in the config, they can be [set per-food](https://github.com/pawjwp/diet/wiki/Setting-Food-Values) instead.
 
-By creating data files, users and modpack developers can create their own custom food groups. Data files can be loaded as part of a datapack or using a mod like [KubeJS](https://modrinth.com/mod/kubejs) or [Open Loader](https://modrinth.com/mod/open-loader). Configurable options include:
+By creating data files, users and modpack developers can create their own custom food groups. Data files can be loaded as part of a [datapack](https://github.com/pawjwp/diet/wiki#using-datapacks) or using a mod like [KubeJS](https://modrinth.com/mod/kubejs) or [Open Loader](https://modrinth.com/mod/open-loader). Configurable options include:
 - Name
 - Item Icon
 - Hexcode Color
@@ -66,7 +66,7 @@ If a notification's frequency is set to `always`, it will provide a prompt for t
 
 ### Further Reading
 
-Please refer to the original mod's [wiki](https://docs.illusivesoulworks.com/1.20.x/category/diet) for more detailed information about food groups, diet suites, and effects. Features added in 3.0+ are described above in [Quality View](https://github.com/pawjwp/diet#quality-view), [Per-Food Nutrition](https://github.com/pawjwp/diet#per-food-nutrition), and [Notifications](https://github.com/pawjwp/diet#notifications). Examples of most mod features in-action can be found [here](https://github.com/pawjwp/Desolate-Planet/tree/main/kubejs/data/desolate_planet/diet), in the data files of my modpack, Desolate Planet.
+Please refer to the [wiki](https://github.com/pawjwp/diet/wiki) for more detailed information about the mod's features, including [food groups](https://github.com/pawjwp/diet/wiki/Customizing-Food-Groups), [food categorization](https://github.com/pawjwp/diet/wiki/Categorizing-Food-to-Groups), [per-food nutrient values](https://github.com/pawjwp/diet/wiki/Setting-Food-Values), and [diet suites](https://github.com/pawjwp/diet/wiki/Customizing-Diet-Suites). Examples of most mod features in-action can be found [here](https://github.com/pawjwp/Desolate-Planet/tree/main/kubejs/data/desolate_planet/diet), in the data files of my modpack, Desolate Planet.
 
 ### Commands
 
