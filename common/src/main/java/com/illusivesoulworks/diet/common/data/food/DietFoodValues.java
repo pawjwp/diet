@@ -29,10 +29,12 @@ import com.illusivesoulworks.diet.platform.Services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import javax.annotation.Nonnull;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -66,13 +68,13 @@ public class DietFoodValues extends SimpleJsonResourceReloadListener {
     }
     Map<String, Float> raw = itemEntries.get(stack.getItem());
 
+    // An individual item's entry takes priority over that same item as part of a tag
     if (raw == null) {
 
       for (TagEntry entry : tagEntries) {
 
         if (stack.is(entry.tag)) {
           raw = entry.values;
-          break;
         }
       }
     }
@@ -100,26 +102,39 @@ public class DietFoodValues extends SimpleJsonResourceReloadListener {
   protected void apply(@Nonnull Map<ResourceLocation, JsonElement> object,
                        @Nonnull ResourceManager resourceManager,
                        @Nonnull ProfilerFiller profilerFiller) {
-    Map<Item, Map<String, Float>> items = new HashMap<>();
-    List<TagEntry> tags = new ArrayList<>();
+    Map<String, FileValues> filesByName = new LinkedHashMap<>();
     Set<String> warnedUnknownGroups = new HashSet<>();
     Set<String> knownGroupNames = new HashSet<>();
 
     for (IDietGroup group : DietGroups.SERVER.getGroups()) {
       knownGroupNames.add(group.getName());
     }
+    
+    // Load diet namespace food data files first, then all others in sorted order
+    List<Map.Entry<ResourceLocation, JsonElement>> orderedFiles = new ArrayList<>();
+    List<Map.Entry<ResourceLocation, JsonElement>> otherFiles = new ArrayList<>();
 
-    for (Map.Entry<ResourceLocation, JsonElement> entry : object.entrySet()) {
+    for (Map.Entry<ResourceLocation, JsonElement> entry : new TreeMap<>(object).entrySet()) {
+
+      if (entry.getKey().getNamespace().equals(DietConstants.MOD_ID)) {
+        orderedFiles.add(entry);
+      } else {
+        otherFiles.add(entry);
+      }
+    }
+    orderedFiles.addAll(otherFiles);
+
+    for (Map.Entry<ResourceLocation, JsonElement> entry : orderedFiles) {
       ResourceLocation resourcelocation = entry.getKey();
 
       try {
         JsonObject top = GsonHelper.convertToJsonObject(entry.getValue(), "top element");
-        boolean replace = GsonHelper.getAsBoolean(top, "replace", false);
-
-        if (replace) {
-          items.clear();
-          tags.clear();
-        }
+        // Files with the same name share their values, which move to the end of the load order
+        // so that later files override earlier ones. Replace discards the earlier files' values.
+        FileValues earlier = filesByName.remove(resourcelocation.getPath());
+        FileValues file = earlier == null || GsonHelper.getAsBoolean(top, "replace", false)
+            ? new FileValues(new HashMap<>(), new ArrayList<>()) : earlier;
+        filesByName.put(resourcelocation.getPath(), file);
         JsonObject values = GsonHelper.getAsJsonObject(top, "values", new JsonObject());
 
         for (Map.Entry<String, JsonElement> valueEntry : values.entrySet()) {
@@ -142,11 +157,11 @@ public class DietFoodValues extends SimpleJsonResourceReloadListener {
           if (key.startsWith("#")) {
             ResourceLocation tagId = new ResourceLocation(key.substring(1));
             TagKey<Item> tagKey = TagKey.create(Registries.ITEM, tagId);
-            tags.add(new TagEntry(tagKey, parsed));
+            file.tags.add(new TagEntry(tagKey, parsed));
           } else {
             ResourceLocation itemId = new ResourceLocation(key);
             Services.REGISTRY.getItem(itemId)
-                .ifPresentOrElse(item -> items.put(item, parsed),
+                .ifPresentOrElse(item -> file.items.put(item, parsed),
                     () -> DietConstants.LOG.warn(
                         "Unknown item '{}' referenced in food_values file {}; ignoring",
                         itemId, resourcelocation));
@@ -156,6 +171,13 @@ public class DietFoodValues extends SimpleJsonResourceReloadListener {
         DietConstants.LOG.error("Parsing error loading diet food values {}", resourcelocation, e);
       }
     }
+    Map<Item, Map<String, Float>> items = new HashMap<>();
+    List<TagEntry> tags = new ArrayList<>();
+
+    for (FileValues file : filesByName.values()) {
+      items.putAll(file.items);
+      tags.addAll(file.tags);
+    }
     this.itemEntries = items;
     this.tagEntries = tags;
     DietConstants.LOG.info("Loaded {} diet food value entries ({} item, {} tag)",
@@ -163,5 +185,8 @@ public class DietFoodValues extends SimpleJsonResourceReloadListener {
   }
 
   private record TagEntry(TagKey<Item> tag, Map<String, Float> values) {
+  }
+
+  private record FileValues(Map<Item, Map<String, Float>> items, List<TagEntry> tags) {
   }
 }
