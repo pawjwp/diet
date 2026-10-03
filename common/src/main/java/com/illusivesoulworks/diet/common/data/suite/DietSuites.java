@@ -225,7 +225,7 @@ public class DietSuites extends SimpleJsonResourceReloadListener {
           int increment = GsonHelper.getAsInt(statusEffectObject, "increment", 1);
           finalStatusEffects.add(new DietEffect.DietStatusEffect(eff, power, increment));
         }, () -> {
-          throw new IllegalArgumentException("Attribute " + name + " does not exist!");
+          throw new IllegalArgumentException("Status effect " + name + " does not exist!");
         });
       }
       UUID uuid = UUID.nameUUIDFromBytes((UUID_PREFIX + uuidSuffix).getBytes());
