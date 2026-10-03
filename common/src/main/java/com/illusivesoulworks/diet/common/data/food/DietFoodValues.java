@@ -17,16 +17,15 @@
 
 package com.illusivesoulworks.diet.common.data.food;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.illusivesoulworks.diet.DietConstants;
 import com.illusivesoulworks.diet.api.type.IDietGroup;
 import com.illusivesoulworks.diet.common.data.group.DietGroups;
 import com.illusivesoulworks.diet.platform.Services;
+import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -34,32 +33,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import javax.annotation.Nonnull;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public class DietFoodValues extends SimpleJsonResourceReloadListener {
+public class DietFoodValues
+    extends SimplePreparableReloadListener<List<DietFoodValues.FoodValueFile>> {
 
-  private static final Gson GSON =
-      (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
+  private static final FileToIdConverter FILE_TO_ID = FileToIdConverter.json("diet/food_values");
 
   public static final DietFoodValues SERVER = Services.CAPABILITY.getFoodValuesListener();
   public static final DietFoodValues CLIENT = Services.CAPABILITY.getFoodValuesListener();
 
   private Map<Item, Map<String, Float>> itemEntries = new HashMap<>();
   private List<TagEntry> tagEntries = new ArrayList<>();
-
-  public DietFoodValues() {
-    super(GSON, "diet/food_values");
-  }
 
   public Optional<Map<IDietGroup, Float>> lookup(ItemStack stack, Set<IDietGroup> availableGroups) {
 
@@ -98,95 +95,107 @@ public class DietFoodValues extends SimpleJsonResourceReloadListener {
     return Optional.of(resolved);
   }
 
+  // Reads every datapack's version of each food values file, based on vanilla's TagLoader
+  // Versions of the same file are combined from the lowest priority datapack up, replace discards the lower priority versions
+  @Nonnull
   @Override
-  protected void apply(@Nonnull Map<ResourceLocation, JsonElement> object,
-                       @Nonnull ResourceManager resourceManager,
-                       @Nonnull ProfilerFiller profilerFiller) {
-    Map<String, FileValues> filesByName = new LinkedHashMap<>();
+  protected List<FoodValueFile> prepare(@Nonnull ResourceManager resourceManager,
+                                        @Nonnull ProfilerFiller profilerFiller) {
+    List<String> packOrder = resourceManager.listPacks().map(PackResources::packId).toList();
+    Map<ResourceLocation, List<FoodValueFile>> versionsById = new LinkedHashMap<>();
+
+    for (Map.Entry<ResourceLocation, List<Resource>> entry :
+        FILE_TO_ID.listMatchingResourceStacks(resourceManager).entrySet()) {
+      ResourceLocation id = FILE_TO_ID.fileToId(entry.getKey());
+
+      for (Resource resource : entry.getValue()) {
+
+        try (Reader reader = resource.openAsReader()) {
+          JsonObject json = GsonHelper.parse(reader);
+          List<FoodValueEntry> entries = new ArrayList<>();
+
+          for (Map.Entry<String, JsonElement> valueEntry :
+              GsonHelper.getAsJsonObject(json, "values", new JsonObject()).entrySet()) {
+            String key = valueEntry.getKey();
+            Map<String, Float> values = new HashMap<>();
+
+            for (Map.Entry<String, JsonElement> groupEntry :
+                GsonHelper.convertToJsonObject(valueEntry.getValue(), key).entrySet()) {
+              values.put(groupEntry.getKey(),
+                  GsonHelper.convertToFloat(groupEntry.getValue(), groupEntry.getKey()));
+            }
+            boolean tag = key.startsWith("#");
+            entries.add(
+                new FoodValueEntry(new ResourceLocation(tag ? key.substring(1) : key), tag, values));
+          }
+          List<FoodValueFile> versions = versionsById.computeIfAbsent(id, k -> new ArrayList<>());
+
+          if (GsonHelper.getAsBoolean(json, "replace", false)) {
+            versions.clear();
+          }
+          versions.add(new FoodValueFile(id, packOrder.indexOf(resource.sourcePackId()), entries));
+        } catch (Exception e) {
+          DietConstants.LOG.error("Couldn't read diet food values {} from {} in data pack {}", id,
+              entry.getKey(), resource.sourcePackId(), e);
+        }
+      }
+    }
+    // Later files override earlier ones, the highest priority is applied last
+    return versionsById.values().stream().flatMap(List::stream)
+        .sorted(Comparator.comparingInt(FoodValueFile::packIndex)).toList();
+  }
+
+  @Override
+  protected void apply(@Nonnull List<FoodValueFile> files, @Nonnull ResourceManager resourceManager, @Nonnull ProfilerFiller profilerFiller) {
+    Map<Item, Map<String, Float>> items = new HashMap<>();
+    List<TagEntry> tags = new ArrayList<>();
     Set<String> warnedUnknownGroups = new HashSet<>();
     Set<String> knownGroupNames = new HashSet<>();
 
     for (IDietGroup group : DietGroups.SERVER.getGroups()) {
       knownGroupNames.add(group.getName());
     }
-    
-    // Load diet namespace food data files first, then all others in sorted order
-    List<Map.Entry<ResourceLocation, JsonElement>> orderedFiles = new ArrayList<>();
-    List<Map.Entry<ResourceLocation, JsonElement>> otherFiles = new ArrayList<>();
 
-    for (Map.Entry<ResourceLocation, JsonElement> entry : new TreeMap<>(object).entrySet()) {
+    for (FoodValueFile file : files) {
 
-      if (entry.getKey().getNamespace().equals(DietConstants.MOD_ID)) {
-        orderedFiles.add(entry);
-      } else {
-        otherFiles.add(entry);
-      }
-    }
-    orderedFiles.addAll(otherFiles);
+      for (FoodValueEntry entry : file.entries) {
 
-    for (Map.Entry<ResourceLocation, JsonElement> entry : orderedFiles) {
-      ResourceLocation resourcelocation = entry.getKey();
-
-      try {
-        JsonObject top = GsonHelper.convertToJsonObject(entry.getValue(), "top element");
-        // Files with the same name share their values, which move to the end of the load order
-        // so that later files override earlier ones. Replace discards the earlier files' values.
-        FileValues earlier = filesByName.remove(resourcelocation.getPath());
-        FileValues file = earlier == null || GsonHelper.getAsBoolean(top, "replace", false)
-            ? new FileValues(new HashMap<>(), new ArrayList<>()) : earlier;
-        filesByName.put(resourcelocation.getPath(), file);
-        JsonObject values = GsonHelper.getAsJsonObject(top, "values", new JsonObject());
-
-        for (Map.Entry<String, JsonElement> valueEntry : values.entrySet()) {
-          String key = valueEntry.getKey();
-          JsonObject groupValues =
-              GsonHelper.convertToJsonObject(valueEntry.getValue(), key);
-          Map<String, Float> parsed = new HashMap<>();
-
-          for (Map.Entry<String, JsonElement> groupEntry : groupValues.entrySet()) {
-            String groupName = groupEntry.getKey();
-
-            if (!knownGroupNames.contains(groupName) && warnedUnknownGroups.add(groupName)) {
-              DietConstants.LOG.warn(
-                  "Unknown diet group '{}' referenced in food_values file {}; ignoring",
-                  groupName, resourcelocation);
-            }
-            parsed.put(groupName, groupEntry.getValue().getAsFloat());
-          }
-
-          if (key.startsWith("#")) {
-            ResourceLocation tagId = new ResourceLocation(key.substring(1));
-            TagKey<Item> tagKey = TagKey.create(Registries.ITEM, tagId);
-            file.tags.add(new TagEntry(tagKey, parsed));
-          } else {
-            ResourceLocation itemId = new ResourceLocation(key);
-            Services.REGISTRY.getItem(itemId)
-                .ifPresentOrElse(item -> file.items.put(item, parsed),
-                    () -> DietConstants.LOG.warn(
-                        "Unknown item '{}' referenced in food_values file {}; ignoring",
-                        itemId, resourcelocation));
+        for (String groupName : entry.values.keySet()) {
+          
+          if (!knownGroupNames.contains(groupName) && warnedUnknownGroups.add(groupName)) {
+            DietConstants.LOG.warn(
+                "Unknown diet group '{}' referenced in food_values file {}; ignoring", groupName, file.id
+            );
           }
         }
-      } catch (IllegalArgumentException | JsonParseException e) {
-        DietConstants.LOG.error("Parsing error loading diet food values {}", resourcelocation, e);
+
+        if (entry.tag) {
+          tags.add(new TagEntry(TagKey.create(Registries.ITEM, entry.id), entry.values));
+        } else {
+          Services.REGISTRY.getItem(entry.id)
+              .ifPresentOrElse(item -> items.put(item, entry.values),
+                  () -> DietConstants.LOG.warn(
+                      "Unknown item '{}' referenced in food_values file {}; ignoring",
+                      entry.id, file.id)
+              );
+        }
       }
     }
-    Map<Item, Map<String, Float>> items = new HashMap<>();
-    List<TagEntry> tags = new ArrayList<>();
 
-    for (FileValues file : filesByName.values()) {
-      items.putAll(file.items);
-      tags.addAll(file.tags);
-    }
     this.itemEntries = items;
     this.tagEntries = tags;
     DietConstants.LOG.info("Loaded {} diet food value entries ({} item, {} tag)",
-        items.size() + tags.size(), items.size(), tags.size());
+        items.size() + tags.size(), items.size(), tags.size()
+    );
+  }
+
+  record FoodValueFile(ResourceLocation id, int packIndex, List<FoodValueEntry> entries) {
+  }
+
+  // One key in a file's values, which is either an item or, when tag is true, an item tag
+  record FoodValueEntry(ResourceLocation id, boolean tag, Map<String, Float> values) {
   }
 
   private record TagEntry(TagKey<Item> tag, Map<String, Float> values) {
-  }
-
-  private record FileValues(Map<Item, Map<String, Float>> items, List<TagEntry> tags) {
   }
 }
